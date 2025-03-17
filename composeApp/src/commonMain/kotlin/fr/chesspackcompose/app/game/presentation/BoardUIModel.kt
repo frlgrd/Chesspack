@@ -1,9 +1,11 @@
 package fr.chesspackcompose.app.game.presentation
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import org.jetbrains.compose.resources.DrawableResource
 
+@Immutable
 data class CellUIModel(
     val position: PiecePosition,
     val squareColor: Color,
