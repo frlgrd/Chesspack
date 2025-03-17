@@ -45,10 +45,9 @@ fun BoardCell(
 
     LaunchedEffect(startReleaseAnimation) {
         if (startReleaseAnimation) {
-            val duration = 500
             Animatable(initialValue = 1F).animateTo(
                 targetValue = 0F,
-                animationSpec = tween(durationMillis = duration)
+                animationSpec = tween()
             ) {
                 dragOffset *= value
             }
