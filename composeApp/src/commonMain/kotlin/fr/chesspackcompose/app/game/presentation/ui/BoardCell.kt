@@ -76,9 +76,7 @@ fun BoardCell(
                     }
                 }
             }
-    ) {
-
-    }
+    )
     if (cell.pieceInfo != null) {
         Image(
             modifier = Modifier
@@ -110,7 +108,7 @@ fun BoardCell(
                                     onEvent(
                                         GameUiEvent.PieceDropped(
                                             cell = cell,
-                                            droppedAt = position,
+                                            droppedAt = position
                                         )
                                     )
                                     dragOffset = Offset.Zero
