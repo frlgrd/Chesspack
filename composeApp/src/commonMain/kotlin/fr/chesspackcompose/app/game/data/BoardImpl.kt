@@ -13,7 +13,6 @@ import fr.chesspackcompose.app.game.domain.pieces.Rook
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 class BoardImpl(
     private val fen: Fen = Fen()
@@ -45,7 +44,7 @@ class BoardImpl(
         }
         piece.markAsMoved()
         updateCheckedKings(pieces)
-        _pieces.update { pieces }
+        _pieces.value = pieces
     }
 
     override fun pieceAt(x: Int, y: Int): Piece? {
@@ -98,110 +97,18 @@ class BoardImpl(
 
     // region Moves
     private fun legalMoves(piece: Piece): List<PiecePosition> = when (piece) {
-        is Bishop -> diagonalMoves(
-            piece = piece
-        )
-
-        is King -> diagonalMoves(
-            piece =
-            piece, max = 1
-        ) + straightMoves(
-            piece = piece,
-            max = 1
-        ) + castlingMoves(
-            king = piece
-        )
-
-        is Knight -> knightMoves(
-            piece = piece
-        )
-
-        is Pawn -> pawnMoves(
-            piece = piece
-        )
-
-        is Queen -> diagonalMoves(
-            piece = piece
-        ) + straightMoves(
-            piece = piece
-        )
-
-        is Rook -> straightMoves(
-            piece = piece
-        )
+        is Bishop -> diagonalMoves(piece = piece)
+        is King -> kingMoves(king = piece)
+        is Knight -> knightMoves(piece = piece)
+        is Pawn -> pawnMoves(pawn = piece)
+        is Queen -> straightMoves(piece = piece) + diagonalMoves(piece = piece)
+        is Rook -> straightMoves(piece = piece)
     }
 
-    private fun straightMoves(piece: Piece, max: Int = 7): List<PiecePosition> {
-        return searchMove(
-            piece = piece,
-            xDirection = -1,
-            yDirection = 0,
-            max = max
-        ) + searchMove(
-            piece = piece,
-            xDirection = 0,
-            yDirection = -1,
-            max = max
-        ) + searchMove(
-            piece = piece,
-            xDirection = 1,
-            yDirection = 0,
-            max = max
-        ) + searchMove(
-            piece = piece,
-            xDirection = 0,
-            yDirection = 1,
-            max = max
-        )
-    }
-
-    private fun diagonalMoves(piece: Piece, max: Int = 7): List<PiecePosition> {
-        return searchMove(
-            piece = piece,
-            xDirection = 1,
-            yDirection = 1,
-            max = max
-        ) + searchMove(
-            piece = piece,
-            xDirection = -1,
-            yDirection = 1,
-            max = max
-        ) + searchMove(
-            piece = piece,
-            xDirection = -1,
-            yDirection = -1,
-            max = max
-        ) + searchMove(
-            piece = piece,
-            xDirection = 1,
-            yDirection = -1,
-            max = max
-        )
-    }
-
-    private fun searchMove(
-        piece: Piece,
-        xDirection: Int,
-        yDirection: Int,
-        max: Int,
-        canAttackFromFront: Boolean = true
-    ): List<PiecePosition> {
-        val moves = mutableListOf<PiecePosition>()
-        var x = piece.position.x
-        var y = piece.position.y
-        var move = 0
-        do {
-            x += xDirection
-            y += yDirection
-            if (x == -1 || y == -1 || x == 8 || y == 8) break
-            val pieceAt = pieceAt(x = x, y = y)
-            if (pieceAt != null && pieceAt.color == piece.color) break
-            val enemyMet = pieceAt != null && pieceAt.color != piece.color
-            if (enemyMet && !canAttackFromFront) break
-            moves.add(PiecePosition(x = x, y = y))
-            move++
-        } while (!enemyMet && move < max)
-        return moves
+    private fun kingMoves(king: King): List<PiecePosition> {
+        return diagonalMoves(piece = king, max = 1) +
+                straightMoves(piece = king, max = 1) +
+                castlingMoves(king = king)
     }
 
     private fun knightMoves(piece: Piece): List<PiecePosition> = listOfNotNull(
@@ -215,6 +122,20 @@ class BoardImpl(
         jumpOverMove(piece = piece, xDirection = 2, yDirection = 1),
     )
 
+    private fun straightMoves(piece: Piece, max: Int = 7): List<PiecePosition> {
+        return searchMove(piece = piece, xDirection = -1, yDirection = 0, max = max) +
+                searchMove(piece = piece, xDirection = 0, yDirection = -1, max = max) +
+                searchMove(piece = piece, xDirection = 1, yDirection = 0, max = max) +
+                searchMove(piece = piece, xDirection = 0, yDirection = 1, max = max)
+    }
+
+    private fun diagonalMoves(piece: Piece, max: Int = 7): List<PiecePosition> {
+        return searchMove(piece = piece, xDirection = 1, yDirection = 1, max = max) +
+                searchMove(piece = piece, xDirection = -1, yDirection = 1, max = max) +
+                searchMove(piece = piece, xDirection = -1, yDirection = -1, max = max) +
+                searchMove(piece = piece, xDirection = 1, yDirection = -1, max = max)
+    }
+
     private fun jumpOverMove(piece: Piece, xDirection: Int, yDirection: Int): PiecePosition? {
         val x = piece.position.x + xDirection
         val y = piece.position.y + yDirection
@@ -224,15 +145,15 @@ class BoardImpl(
         return PiecePosition(x = x, y = y)
     }
 
-    private fun pawnMoves(piece: Piece): List<PiecePosition> {
-        val direction = if (piece.color == PieceColor.White) -1 else 1
+    private fun pawnMoves(pawn: Pawn): List<PiecePosition> {
+        val direction = if (pawn.color == PieceColor.White) -1 else 1
         return searchMove(
-            piece = piece,
+            piece = pawn,
             xDirection = 0,
             yDirection = direction,
-            max = if (piece.moved) 1 else 2,
+            max = if (pawn.moved) 1 else 2,
             canAttackFromFront = false
-        ) + pawnAttackMoves(piece = piece, direction = direction)
+        ) + pawnAttackMoves(piece = pawn, direction = direction)
     }
 
     private fun pawnAttackMoves(
@@ -260,5 +181,28 @@ class BoardImpl(
         }
     }
 
+    private fun searchMove(
+        piece: Piece, xDirection: Int,
+        yDirection: Int,
+        max: Int,
+        canAttackFromFront: Boolean = true
+    ): List<PiecePosition> {
+        val moves = mutableListOf<PiecePosition>()
+        var x = piece.position.x
+        var y = piece.position.y
+        var move = 0
+        do {
+            x += xDirection
+            y += yDirection
+            if (x == -1 || y == -1 || x == 8 || y == 8) break
+            val pieceAt = pieceAt(x = x, y = y)
+            if (pieceAt != null && pieceAt.color == piece.color) break
+            val enemyMet = pieceAt != null && pieceAt.color != piece.color
+            if (enemyMet && !canAttackFromFront) break
+            moves.add(PiecePosition(x = x, y = y))
+            move++
+        } while (!enemyMet && move < max)
+        return moves
+    }
     // endregion moves
 }
