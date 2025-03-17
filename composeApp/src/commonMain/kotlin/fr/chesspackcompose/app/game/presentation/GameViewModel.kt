@@ -12,14 +12,14 @@ import kotlinx.coroutines.flow.update
 
 class GameViewModel(
     private val board: Board,
-    private val gameMapper: PieceMapper
+    private val piecesMapper: PiecesMapper
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameUIState())
     val state = _state.asStateFlow()
 
     init {
         board.piecesFLow
-            .map { gameMapper.map(board, it) }
+            .map { piecesMapper.map(board, it) }
             .onEach { cells -> _state.update { it.copy(cells = cells) } }
             .launchIn(viewModelScope)
     }

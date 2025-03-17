@@ -26,7 +26,7 @@ import fr.chesspackcompose.app.game.domain.pieces.Queen
 import fr.chesspackcompose.app.game.domain.pieces.Rook
 import org.jetbrains.compose.resources.DrawableResource
 
-class PieceMapper {
+class PiecesMapper {
     fun map(board: Board, pieces: Set<Piece>): List<CellUIModel> {
         val result = mutableListOf<CellUIModel>()
         (0..7).forEach { x ->
