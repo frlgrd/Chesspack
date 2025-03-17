@@ -33,6 +33,7 @@ class BoardImpl(
     }
 
     override fun move(from: PiecePosition, to: PiecePosition) {
+        if (from == to) return
         val pieces = _pieces.value.toMutableSet()
         val piece = pieces.find { it.position == from } ?: return
         val target = pieces.find { it.position == to }
@@ -54,6 +55,45 @@ class BoardImpl(
     override fun legalMovesFor(x: Int, y: Int): List<PiecePosition>? {
         val piece = pieceAt(x = x, y = y) ?: return null
         return legalMoves(piece)
+    }
+
+    private fun updateCheckedKings(pieces: MutableSet<Piece>) {
+        pieces
+            .filterIsInstance<King>()
+            .map { king ->
+                val isChecked = opponentsMoves(pieces, king).contains(king.position)
+                king.updateCheck(isChecked = isChecked)
+            }
+    }
+
+    private fun canCastling(king: King, rook: Rook): Boolean {
+        if (king.moved || rook.moved) return false
+        val range = if (king.position.x < rook.position.x) {
+            king.position.x + 1..<rook.position.x // pieces between king and east rook
+        } else {
+            king.position.x - 1 downTo rook.position.x + 1 // pieces between king and west rook
+        }
+        val piecesBetween = range.mapNotNull { pieceAt(x = it, y = king.position.y) }
+        return piecesBetween.isEmpty()
+    }
+
+    private fun castling(king: Piece, rook: Piece) {
+        if (king !is King) return // Should not happen
+        if (rook !is Rook) return // Should not happen
+        if (king.position.x < rook.position.x) {
+            king.position = king.position.copy(x = king.position.x + 2)
+            rook.position = rook.position.copy(x = king.position.x - 1)
+        } else {
+            king.position = king.position.copy(x = king.position.x - 2)
+            rook.position = rook.position.copy(x = king.position.x + 1)
+        }
+    }
+
+    private fun opponentsMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
+        return pieces.filter { it.color != piece.color }
+            .map(::legalMoves)
+            .flatten()
+            .distinct()
     }
 
     // region Moves
@@ -221,40 +261,4 @@ class BoardImpl(
     }
 
     // endregion moves
-
-    private fun updateCheckedKings(pieces: MutableSet<Piece>) {
-        pieces
-            .filterIsInstance<King>()
-            .map { it.updateCheck(opponentsMoves(pieces, it).contains(it.position)) }
-    }
-
-    private fun canCastling(king: King, rook: Rook): Boolean {
-        if (king.moved || rook.moved) return false
-        val range = if (king.position.x < rook.position.x) {
-            king.position.x + 1..<rook.position.x // pieces between king and east rook
-        } else {
-            king.position.x - 1 downTo rook.position.x + 1 // pieces between king and west rook
-        }
-        val piecesBetween = range.mapNotNull { pieceAt(x = it, y = king.position.y) }
-        return piecesBetween.isEmpty()
-    }
-
-    private fun castling(king: Piece, rook: Piece) {
-        if (king !is King) return // Should not happen
-        if (rook !is Rook) return // Should not happen
-        if (king.position.x < rook.position.x) {
-            king.position = king.position.copy(x = king.position.x + 2)
-            rook.position = rook.position.copy(x = king.position.x - 1)
-        } else {
-            king.position = king.position.copy(x = king.position.x - 2)
-            rook.position = rook.position.copy(x = king.position.x + 1)
-        }
-    }
-
-    private fun opponentsMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
-        return pieces.filter { it.color != piece.color }
-            .map(::legalMoves)
-            .flatten()
-            .distinct()
-    }
 }
