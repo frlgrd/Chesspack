@@ -116,6 +116,7 @@ fun BoardCell(
                                     )
                                     dragOffset = Offset.Zero
                                 } else {
+                                    onEvent(GameUiEvent.DragCanceled)
                                     startReleaseAnimation = true
                                 }
                             }

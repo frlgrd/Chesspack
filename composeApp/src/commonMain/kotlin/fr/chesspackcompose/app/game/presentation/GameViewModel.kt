@@ -30,12 +30,16 @@ class GameViewModel(
             is GameUiEvent.PiecePicked -> _state.update {
                 val legalMoves = board.legalMovesFor(event.cell.position.x, event.cell.position.y)
                 it.copy(cells = it.cells.map { cell ->
-                    cell.copy(markAsLegalMove = legalMoves.contains(cell.position))
+                    cell.copy(markAsLegalMove = legalMoves?.contains(cell.position) == true)
                 })
             }
 
             is GameUiEvent.PieceDropped -> {
                 board.move(from = event.cell.position, to = event.droppedAt)
+            }
+
+            is GameUiEvent.DragCanceled -> _state.update {
+                it.copy(cells = it.cells.map { cell -> cell.copy(markAsLegalMove = false) })
             }
         }
     }

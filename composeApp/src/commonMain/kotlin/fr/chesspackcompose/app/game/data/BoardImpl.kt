@@ -19,8 +19,8 @@ class BoardImpl(
     private val fen: Fen = Fen()
 ) : Board {
 
-    private val _piece: MutableStateFlow<Set<Piece>> = MutableStateFlow(mutableSetOf())
-    override val pieces: Flow<Set<Piece>> get() = _piece.asStateFlow()
+    private val _pieces: MutableStateFlow<Set<Piece>> = MutableStateFlow(mutableSetOf())
+    override val pieces: Flow<Set<Piece>> get() = _pieces.asStateFlow()
 
     init {
         val pieces = mutableSetOf<Piece>()
@@ -29,34 +29,64 @@ class BoardImpl(
                 fen.pieceAt(x, y)?.let { pieces.add(it) }
             }
         }
-        _piece.value = pieces
+        _pieces.value = pieces
     }
 
     override fun move(from: PiecePosition, to: PiecePosition) {
-        val pieces = _piece.value.toMutableSet()
+        val pieces = _pieces.value.toMutableSet()
         val piece = pieces.find { it.position == from } ?: return
-        println("piece $piece from $from to $to")
-        println(pieces.removeAll { it.position == to })
-        piece.position = to
-        _piece.update { pieces }
+        val target = pieces.find { it.position == to }
+        if (target?.color == piece.color) {
+            castling(piece, target)
+        } else {
+            pieces.removeAll { it.position == to }
+            piece.position = to
+        }
+        piece.markAsMoved()
+        _pieces.update { pieces }
     }
 
     override fun pieceAt(x: Int, y: Int): Piece? {
-        return _piece.value.find { it.position.x == x && it.position.y == y }
+        return _pieces.value.find { it.position.x == x && it.position.y == y }
     }
 
-    override fun legalMovesFor(x: Int, y: Int): List<PiecePosition> {
-        val piece = pieceAt(x = x, y = y) ?: return emptyList()
-        return legalMovesFor(piece)
+    override fun legalMovesFor(x: Int, y: Int): List<PiecePosition>? {
+        val piece = pieceAt(x = x, y = y) ?: return null
+        return legalMoves(piece)
     }
 
-    private fun legalMovesFor(piece: Piece): List<PiecePosition> = when (piece) {
-        is Bishop -> diagonalMoves(piece = piece)
-        is King -> diagonalMoves(piece = piece, max = 1) + straightMoves(piece = piece, max = 1)
-        is Knight -> knightMoves(piece = piece)
-        is Pawn -> pawnMoves(piece = piece)
-        is Queen -> diagonalMoves(piece = piece) + straightMoves(piece = piece)
-        is Rook -> straightMoves(piece = piece)
+    private fun legalMoves(piece: Piece): List<PiecePosition> = when (piece) {
+        is Bishop -> diagonalMoves(
+            piece = piece
+        )
+
+        is King -> diagonalMoves(
+            piece =
+            piece, max = 1
+        ) + straightMoves(
+            piece = piece,
+            max = 1
+        ) + castlingMoves(
+            king = piece
+        )
+
+        is Knight -> knightMoves(
+            piece = piece
+        )
+
+        is Pawn -> pawnMoves(
+            piece = piece
+        )
+
+        is Queen -> diagonalMoves(
+            piece = piece
+        ) + straightMoves(
+            piece = piece
+        )
+
+        is Rook -> straightMoves(
+            piece = piece
+        )
     }
 
     private fun straightMoves(piece: Piece, max: Int = 7): List<PiecePosition> {
@@ -177,5 +207,37 @@ class BoardImpl(
             attackMoves.add(rightPiece.position)
         }
         return attackMoves
+    }
+
+    private fun castlingMoves(king: King): List<PiecePosition> {
+        val rookForKing = _pieces.value
+            .filterIsInstance<Rook>()
+            .filter { it.color == king.color }
+        return rookForKing.mapNotNull { rook ->
+            if (canCastling(king, rook)) rook.position else null
+        }
+    }
+
+    private fun canCastling(king: King, rook: Rook): Boolean {
+        if (king.moved || rook.moved) return false
+        val range = if (king.position.x < rook.position.x) {
+            king.position.x + 1..<rook.position.x // pieces between king and east rook
+        } else {
+            king.position.x - 1 downTo rook.position.x + 1 // pieces between king and west rook
+        }
+        val piecesBetween = range.mapNotNull { pieceAt(x = it, y = king.position.y) }
+        return piecesBetween.isEmpty()
+    }
+
+    private fun castling(king: Piece, rook: Piece) {
+        if (king !is King) return // Should not happen
+        if (rook !is Rook) return // Should not happen
+        if (king.position.x < rook.position.x) {
+            king.position = king.position.copy(x = king.position.x + 2)
+            rook.position = rook.position.copy(x = king.position.x - 1)
+        } else {
+            king.position = king.position.copy(x = king.position.x - 2)
+            rook.position = rook.position.copy(x = king.position.x + 1)
+        }
     }
 }
