@@ -2,7 +2,6 @@ package fr.chesspackcompose.app.game.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import fr.chesspackcompose.app.game.data.BoardImpl
 import fr.chesspackcompose.app.game.domain.Board
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,8 +11,8 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 
 class GameViewModel(
-    private val board: Board = BoardImpl(),
-    private val gameMapper: PieceMapper = PieceMapper()
+    private val board: Board,
+    private val gameMapper: PieceMapper
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameUIState())
     val state = _state.asStateFlow()
