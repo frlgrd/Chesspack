@@ -13,12 +13,13 @@ import fr.chesspackcompose.app.game.domain.pieces.Rook
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class BoardImpl(
     private val fen: Fen = Fen()
 ) : Board {
 
-    private val _piecesFlow: MutableStateFlow<Set<Piece>> = MutableStateFlow(mutableSetOf())
+    private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
 
     init {
@@ -28,23 +29,27 @@ class BoardImpl(
                 fen.pieceAt(x, y)?.let { pieces.add(it) }
             }
         }
-        _piecesFlow.value = pieces
+        sendUpdate(pieces)
     }
 
     override fun move(from: PiecePosition, to: PiecePosition) {
         if (from == to) return
-        val pieces = _piecesFlow.value.toMutableSet()
+        val pieces = _piecesFlow.value
         val piece = pieces.find { it.position == from } ?: return
         val target = pieces.find { it.position == to }
         if (target?.color == piece.color) {
-            castling(piece, target)
+            castling(king = piece, rook = target)
         } else {
-            pieces.removeAll { it.position == to }
-            piece.position = to
+            movePiece(piece = piece, to = to)
         }
         piece.markAsMoved()
         updateCheckedKings(pieces)
-        _piecesFlow.value = pieces
+        sendUpdate(pieces)
+    }
+
+    private fun movePiece(piece: Piece, to: PiecePosition) {
+        _piecesFlow.value.removeAll { it.position == to }
+        piece.position = to
     }
 
     override fun pieceAt(x: Int, y: Int): Piece? {
@@ -56,6 +61,10 @@ class BoardImpl(
         return legalMoves(piece)
     }
 
+    private fun sendUpdate(pieces: Set<Piece>) {
+        _piecesFlow.update { pieces.toMutableSet() }
+    }
+
     private fun updateCheckedKings(pieces: MutableSet<Piece>) {
         pieces
             .filterIsInstance<King>()
@@ -65,8 +74,9 @@ class BoardImpl(
             }
     }
 
+    // region Castling
     private fun canCastling(king: King, rook: Rook): Boolean {
-        if (king.moved || rook.moved) return false
+        if (king.moved || rook.moved || king.isChecked) return false
         val range = if (king.position.x < rook.position.x) {
             king.position.x + 1..<rook.position.x // pieces between king and east rook
         } else {
@@ -87,13 +97,7 @@ class BoardImpl(
             rook.position = rook.position.copy(x = king.position.x + 1)
         }
     }
-
-    private fun opponentsMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
-        return pieces.filter { it.color != piece.color }
-            .map(::legalMoves)
-            .flatten()
-            .distinct()
-    }
+    // endregion
 
     // region Moves
     private fun legalMoves(piece: Piece): List<PiecePosition> = when (piece) {
@@ -204,5 +208,12 @@ class BoardImpl(
         } while (!enemyMet && move < max)
         return moves
     }
-    // endregion moves
+
+    private fun opponentsMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
+        return pieces.filter { it.color != piece.color }
+            .map(::legalMoves)
+            .flatten()
+            .distinct()
+    }
+    // endregion
 }
