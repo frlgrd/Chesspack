@@ -43,7 +43,7 @@ class BoardImpl(
             piece.position = to
         }
         piece.markAsMoved()
-        updateKingsCheckState()
+        updateCheckedKings(pieces)
         _pieces.update { pieces }
     }
 
@@ -222,10 +222,10 @@ class BoardImpl(
 
     // endregion moves
 
-    private fun updateKingsCheckState() {
-        _pieces.value
+    private fun updateCheckedKings(pieces: MutableSet<Piece>) {
+        pieces
             .filterIsInstance<King>()
-            .map { it.updateCheck(opponentsMoves(it).contains(it.position)) }
+            .map { it.updateCheck(opponentsMoves(pieces, it).contains(it.position)) }
     }
 
     private fun canCastling(king: King, rook: Rook): Boolean {
@@ -251,8 +251,8 @@ class BoardImpl(
         }
     }
 
-    private fun opponentsMoves(piece: Piece): List<PiecePosition> {
-        return _pieces.value.filter { it.color != piece.color }
+    private fun opponentsMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
+        return pieces.filter { it.color != piece.color }
             .map(::legalMoves)
             .flatten()
             .distinct()
