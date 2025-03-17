@@ -18,8 +18,8 @@ class BoardImpl(
     private val fen: Fen = Fen()
 ) : Board {
 
-    private val _pieces: MutableStateFlow<Set<Piece>> = MutableStateFlow(mutableSetOf())
-    override val pieces: Flow<Set<Piece>> get() = _pieces.asStateFlow()
+    private val _piecesFlow: MutableStateFlow<Set<Piece>> = MutableStateFlow(mutableSetOf())
+    override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
 
     init {
         val pieces = mutableSetOf<Piece>()
@@ -28,12 +28,12 @@ class BoardImpl(
                 fen.pieceAt(x, y)?.let { pieces.add(it) }
             }
         }
-        _pieces.value = pieces
+        _piecesFlow.value = pieces
     }
 
     override fun move(from: PiecePosition, to: PiecePosition) {
         if (from == to) return
-        val pieces = _pieces.value.toMutableSet()
+        val pieces = _piecesFlow.value.toMutableSet()
         val piece = pieces.find { it.position == from } ?: return
         val target = pieces.find { it.position == to }
         if (target?.color == piece.color) {
@@ -44,11 +44,11 @@ class BoardImpl(
         }
         piece.markAsMoved()
         updateCheckedKings(pieces)
-        _pieces.value = pieces
+        _piecesFlow.value = pieces
     }
 
     override fun pieceAt(x: Int, y: Int): Piece? {
-        return _pieces.value.find { it.position.x == x && it.position.y == y }
+        return _piecesFlow.value.find { it.position.x == x && it.position.y == y }
     }
 
     override fun legalMovesFor(x: Int, y: Int): List<PiecePosition>? {
@@ -173,7 +173,7 @@ class BoardImpl(
     }
 
     private fun castlingMoves(king: King): List<PiecePosition> {
-        val rookForKing = _pieces.value
+        val rookForKing = _piecesFlow.value
             .filterIsInstance<Rook>()
             .filter { it.color == king.color }
         return rookForKing.mapNotNull { rook ->

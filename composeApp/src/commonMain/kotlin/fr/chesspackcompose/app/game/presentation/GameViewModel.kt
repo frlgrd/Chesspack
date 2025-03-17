@@ -19,7 +19,7 @@ class GameViewModel(
     val state = _state.asStateFlow()
 
     init {
-        board.pieces
+        board.piecesFLow
             .map { gameMapper.map(board, it) }
             .onEach { cells -> _state.update { it.copy(cells = cells) } }
             .launchIn(viewModelScope)
