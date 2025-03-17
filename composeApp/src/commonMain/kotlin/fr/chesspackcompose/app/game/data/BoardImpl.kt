@@ -43,7 +43,7 @@ class BoardImpl(
             movePiece(piece = piece, to = to)
         }
         piece.markAsMoved()
-        updateCheckedKings(pieces)
+        updateCheckedKings()
         sendUpdate(pieces)
     }
 
@@ -65,11 +65,11 @@ class BoardImpl(
         _piecesFlow.update { pieces.toMutableSet() }
     }
 
-    private fun updateCheckedKings(pieces: MutableSet<Piece>) {
-        pieces
+    private fun updateCheckedKings() {
+        _piecesFlow.value
             .filterIsInstance<King>()
             .map { king ->
-                val isChecked = opponentsMoves(pieces, king).contains(king.position)
+                val isChecked = opponentsMoves(king).contains(king.position)
                 king.updateCheck(isChecked = isChecked)
             }
     }
@@ -209,8 +209,8 @@ class BoardImpl(
         return moves
     }
 
-    private fun opponentsMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
-        return pieces.filter { it.color != piece.color }
+    private fun opponentsMoves(piece: Piece): List<PiecePosition> {
+        return _piecesFlow.value.filter { it.color != piece.color }
             .map(::legalMoves)
             .flatten()
             .distinct()
