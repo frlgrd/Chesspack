@@ -14,8 +14,8 @@ data class CellUIModel(
     val pieceInfo: PieceInfo? = null
 ) {
     val backgroundColor: Color = when {
-        isChecked -> checkmatedColor
         isDragging -> originalPositionColor
+        isChecked -> checkmatedColor
         else -> squareColor
     }
 }
