@@ -6,11 +6,19 @@ import org.jetbrains.compose.resources.DrawableResource
 
 data class CellUIModel(
     val position: PiecePosition,
-    val backgroundColor: Color,
+    val squareColor: Color,
+    val isChecked: Boolean,
+    val isDragging: Boolean,
     val moveEnabled: Boolean = true,
     val markAsLegalMove: Boolean = false,
     val pieceInfo: PieceInfo? = null
-)
+) {
+    val backgroundColor: Color = when {
+        isChecked -> checkmatedColor
+        isDragging -> originalPositionColor
+        else -> squareColor
+    }
+}
 
 data class PieceInfo(
     val drawableResource: DrawableResource,
