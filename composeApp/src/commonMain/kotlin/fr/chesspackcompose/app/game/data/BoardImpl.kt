@@ -43,6 +43,7 @@ class BoardImpl(
             piece.position = to
         }
         piece.markAsMoved()
+        updateKingsCheckState()
         _pieces.update { pieces }
     }
 
@@ -55,6 +56,7 @@ class BoardImpl(
         return legalMoves(piece)
     }
 
+    // region Moves
     private fun legalMoves(piece: Piece): List<PiecePosition> = when (piece) {
         is Bishop -> diagonalMoves(
             piece = piece
@@ -218,6 +220,14 @@ class BoardImpl(
         }
     }
 
+    // endregion moves
+
+    private fun updateKingsCheckState() {
+        _pieces.value
+            .filterIsInstance<King>()
+            .map { it.updateCheck(opponentsMoves(it).contains(it.position)) }
+    }
+
     private fun canCastling(king: King, rook: Rook): Boolean {
         if (king.moved || rook.moved) return false
         val range = if (king.position.x < rook.position.x) {
@@ -239,5 +249,12 @@ class BoardImpl(
             king.position = king.position.copy(x = king.position.x - 2)
             rook.position = rook.position.copy(x = king.position.x + 1)
         }
+    }
+
+    private fun opponentsMoves(piece: Piece): List<PiecePosition> {
+        return _pieces.value.filter { it.color != piece.color }
+            .map(::legalMoves)
+            .flatten()
+            .distinct()
     }
 }

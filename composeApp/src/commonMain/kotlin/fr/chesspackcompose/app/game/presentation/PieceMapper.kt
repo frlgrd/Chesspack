@@ -1,5 +1,6 @@
 package fr.chesspackcompose.app.game.presentation
 
+import androidx.compose.ui.graphics.Color
 import chesspackcompose.composeapp.generated.resources.Res
 import chesspackcompose.composeapp.generated.resources.piece_bishop_side_black
 import chesspackcompose.composeapp.generated.resources.piece_bishop_side_white
@@ -34,7 +35,7 @@ class PieceMapper {
                 val piece = pieces.find { it.position == position }
                 val cellUIModel = CellUIModel(
                     position = position,
-                    backgroundColor = if ((position.x + position.y) % 2 == 0) darkColor else lightColor,
+                    backgroundColor = cellBackgroundColor(piece = piece, position = position),
                     moveEnabled = true,
                     markAsLegalMove = false,
                     pieceInfo = piece.toPieceUiInfo(board)
@@ -43,6 +44,13 @@ class PieceMapper {
             }
         }
         return result
+    }
+
+    private fun cellBackgroundColor(piece: Piece?, position: PiecePosition): Color {
+        return when {
+            piece is King && piece.isChecked -> checkmatedColor
+            else -> if ((position.x + position.y) % 2 == 0) darkColor else lightColor
+        }
     }
 
     private fun Piece?.toPieceUiInfo(board: Board): PieceInfo? {
