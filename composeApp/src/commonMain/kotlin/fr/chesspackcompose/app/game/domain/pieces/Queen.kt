@@ -6,4 +6,4 @@ import fr.chesspackcompose.app.game.domain.PiecePosition
 data class Queen(
     override var position: PiecePosition,
     override val color: PieceColor,
-) : Piece(position, color)
+) : Piece(position = position, color = color)
