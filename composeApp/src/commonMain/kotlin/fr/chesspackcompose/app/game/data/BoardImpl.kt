@@ -179,7 +179,8 @@ class BoardImpl(
     }
 
     private fun searchMove(
-        piece: Piece, xDirection: Int,
+        piece: Piece,
+        xDirection: Int,
         yDirection: Int,
         max: Int,
         canAttackFromFront: Boolean = true
