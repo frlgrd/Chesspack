@@ -177,12 +177,12 @@ class BoardImpl(
     }
 
     private fun castlingMoves(king: King): List<PiecePosition> {
-        val rookForKing = _piecesFlow.value
+        return _piecesFlow.value
             .filterIsInstance<Rook>()
             .filter { it.color == king.color }
-        return rookForKing.mapNotNull { rook ->
-            if (canCastling(king, rook)) rook.position else null
-        }
+            .mapNotNull { rook ->
+                if (canCastling(king, rook)) rook.position else null
+            }
     }
 
     private fun searchMove(
