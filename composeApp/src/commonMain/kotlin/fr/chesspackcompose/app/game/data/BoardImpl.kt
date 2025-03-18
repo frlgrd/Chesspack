@@ -16,20 +16,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class BoardImpl(
-    private val fen: Fen
+    fen: Fen
 ) : Board {
 
     private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
 
     init {
-        val pieces = mutableSetOf<Piece>()
-        (0..7).forEach { x ->
-            (0..7).forEach { y ->
-                fen.pieceAt(x, y)?.let { pieces.add(it) }
-            }
-        }
-        sendUpdate(pieces)
+        sendUpdate(pieces = fen.toPieces())
     }
 
     override fun move(from: PiecePosition, to: PiecePosition) {
@@ -44,7 +38,7 @@ class BoardImpl(
         }
         piece.markAsMoved()
         updateCheckedKings()
-        sendUpdate(pieces)
+        sendUpdate(pieces = pieces)
     }
 
     private fun movePiece(piece: Piece, to: PiecePosition) {

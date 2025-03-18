@@ -30,27 +30,30 @@ value class Fen(
         private const val PAWN = 'p'
     }
 
-    fun pieceAt(x: Int, y: Int): Piece? {
-        var colIndex = 0
-        fen.split(ROWS_SEPARATOR)[y].forEach { char ->
-            if (char.isDigit()) {
-                colIndex += char.digitToInt()
-            } else {
-                if (colIndex == x) {
+    fun toPieces(): Set<Piece> {
+        val pieces = mutableSetOf<Piece>()
+        fen.split(ROWS_SEPARATOR).forEachIndexed { y, row ->
+            var x = 0
+            row.forEach { char ->
+                if (char.isDigit()) {
+                    x += char.digitToInt()
+                } else {
                     val color = if (char.isLowerCase()) PieceColor.Black else PieceColor.White
-                    return when (char.lowercaseChar()) {
-                        ROOK -> Rook(position = PiecePosition(x = x, y = y), color = color)
-                        KNIGHT -> Knight(position = PiecePosition(x = x, y = y), color = color)
-                        BISHOP -> Bishop(position = PiecePosition(x = x, y = y), color = color)
-                        QUEEN -> Queen(position = PiecePosition(x = x, y = y), color = color)
-                        KING -> King(position = PiecePosition(x = x, y = y), color = color)
-                        PAWN -> Pawn(position = PiecePosition(x = x, y = y), color = color)
+                    val position = PiecePosition(x = x, y = y)
+                    val piece = when (char.lowercaseChar()) {
+                        ROOK -> Rook(position = position, color = color)
+                        KNIGHT -> Knight(position = position, color = color)
+                        BISHOP -> Bishop(position = position, color = color)
+                        QUEEN -> Queen(position = position, color = color)
+                        KING -> King(position = position, color = color)
+                        PAWN -> Pawn(position = position, color = color)
                         else -> null
                     }
+                    if (piece != null) pieces.add(piece)
+                    x++
                 }
-                colIndex++
             }
         }
-        return null
+        return pieces
     }
 }
