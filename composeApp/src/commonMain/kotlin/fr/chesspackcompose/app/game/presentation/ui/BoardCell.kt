@@ -31,6 +31,8 @@ import fr.chesspackcompose.app.game.presentation.CellUIModel
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import org.jetbrains.compose.resources.painterResource
 
+private val moveIndicatorColor = Color.White.copy(alpha = 0.5F)
+
 @Composable
 fun BoardCell(
     cell: CellUIModel,
@@ -64,12 +66,12 @@ fun BoardCell(
                 if (cell.markAsLegalMove) {
                     if (cell.pieceInfo == null) {
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.5F),
+                            color = moveIndicatorColor,
                             radius = size.value.times(0.5F)
                         )
                     } else {
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.5F),
+                            color = moveIndicatorColor,
                             radius = size.value.times(1.2F),
                             style = Stroke(width = size.value / 4)
                         )
@@ -106,10 +108,7 @@ fun BoardCell(
 
                                 if (cell.pieceInfo.legalMoves.contains(position)) {
                                     onEvent(
-                                        GameUiEvent.PieceDropped(
-                                            cell = cell,
-                                            droppedAt = position
-                                        )
+                                        GameUiEvent.PieceDropped(cell = cell, droppedAt = position)
                                     )
                                     dragOffset = Offset.Zero
                                 } else {
