@@ -20,6 +20,8 @@ data class CellUIModel(
         isChecked -> checkmatedColor
         else -> squareColor
     }
+
+    val contentDescription: String get() = position.toString()
 }
 
 data class PieceInfo(

@@ -120,7 +120,7 @@ fun BoardCell(
                     }
                 },
             painter = painterResource(cell.pieceInfo.drawableResource),
-            contentDescription = null
+            contentDescription = cell.contentDescription
         )
     }
 }
