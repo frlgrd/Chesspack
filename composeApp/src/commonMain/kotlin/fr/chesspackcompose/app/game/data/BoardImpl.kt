@@ -27,7 +27,6 @@ class BoardImpl(
     }
 
     override fun move(from: PiecePosition, to: PiecePosition) {
-        if (from == to) return
         val pieces = _piecesFlow.value
         val piece = pieces.find { it.position == from } ?: return
         val target = pieces.find { it.position == to }
