@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -37,6 +38,7 @@ private val moveIndicatorColor = Color.White.copy(alpha = 0.5F)
 fun BoardCell(
     cell: CellUIModel,
     size: Dp,
+    rotation: Float,
     onEvent: (GameUiEvent) -> Unit
 ) {
     val xLocation = remember(size) { size.times(cell.position.x) }
@@ -118,7 +120,8 @@ fun BoardCell(
                             }
                         )
                     }
-                },
+                }
+                .rotate(rotation),
             painter = painterResource(cell.pieceInfo.drawableResource),
             contentDescription = cell.contentDescription
         )

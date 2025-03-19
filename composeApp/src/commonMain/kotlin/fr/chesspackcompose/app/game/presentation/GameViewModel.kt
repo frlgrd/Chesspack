@@ -3,11 +3,13 @@ package fr.chesspackcompose.app.game.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.chesspackcompose.app.game.domain.Board
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val board: Board,
@@ -17,7 +19,10 @@ class GameViewModel(
     val state = _state.asStateFlow()
 
     init {
-        combine(board.piecesFLow, board.player) { pieces, player ->
+        combine(
+            board.piecesFLow,
+            board.player
+        ) { pieces, player ->
             _state.update {
                 it.copy(
                     cells = piecesMapper.map(
@@ -44,7 +49,11 @@ class GameViewModel(
             }
 
             is GameUiEvent.PieceDropped -> {
-                board.move(from = event.cell.position, to = event.droppedAt)
+                viewModelScope.launch {
+                    board.move(from = event.cell.position, to = event.droppedAt)
+                    delay(500)
+                    _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
+                }
             }
 
             is GameUiEvent.DragCanceled -> _state.update {
