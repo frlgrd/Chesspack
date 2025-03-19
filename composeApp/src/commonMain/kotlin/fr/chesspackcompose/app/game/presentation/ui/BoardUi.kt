@@ -11,7 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -39,8 +39,8 @@ fun BoardUi(
     Box(
         modifier = modifier
             .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
-            .rotate(currentRotation)
             .aspectRatio(1F)
+            .graphicsLayer { rotationZ = currentRotation }
     ) {
         state.cells.forEach { cell ->
             BoardCell(
