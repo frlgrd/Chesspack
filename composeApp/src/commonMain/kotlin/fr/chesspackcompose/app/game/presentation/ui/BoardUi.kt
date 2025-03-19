@@ -2,7 +2,9 @@ package fr.chesspackcompose.app.game.presentation.ui
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,19 +38,27 @@ fun BoardUi(
             currentRotation = value
         }
     }
-    Box(
-        modifier = modifier
-            .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
-            .aspectRatio(1F)
-            .graphicsLayer { rotationZ = currentRotation }
-    ) {
-        state.cells.forEach { cell ->
-            BoardCell(
-                cell = cell,
-                size = squareSize,
-                rotation = -currentRotation,
-                onEvent = onEvent
-            )
+    Column(verticalArrangement = Arrangement.Center) {
+        if (state.topTaken != null) {
+            TakenPieces(takenPieces = state.topTaken)
+        }
+        Box(
+            modifier = modifier
+                .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
+                .aspectRatio(1F)
+                .graphicsLayer { rotationZ = currentRotation }
+        ) {
+            state.cells.forEach { cell ->
+                BoardCell(
+                    cell = cell,
+                    size = squareSize,
+                    rotation = -currentRotation,
+                    onEvent = onEvent
+                )
+            }
+        }
+        if (state.bottomTaken != null) {
+            TakenPieces(takenPieces = state.bottomTaken)
         }
     }
 }

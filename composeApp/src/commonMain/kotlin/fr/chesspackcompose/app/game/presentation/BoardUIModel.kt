@@ -28,3 +28,13 @@ data class PieceInfo(
     val drawableResource: DrawableResource,
     val legalMoves: List<PiecePosition>
 )
+
+data class TakenPieces(
+    val pieces: Map<DrawableResource, TakenPiece>,
+    val advantage: Int?
+)
+
+data class TakenPiece(
+    val order: Int,
+    val count: Int
+)
