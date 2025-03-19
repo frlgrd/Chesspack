@@ -26,7 +26,7 @@ import fr.chesspackcompose.app.game.domain.pieces.Rook
 import org.jetbrains.compose.resources.DrawableResource
 
 class PiecesMapper {
-    fun map(board: Board, pieces: Set<Piece>): List<CellUIModel> {
+    fun map(board: Board, pieces: Set<Piece>, player: PieceColor): List<CellUIModel> {
         val result = mutableListOf<CellUIModel>()
         (0..7).forEach { x ->
             (0..7).forEach { y ->
@@ -35,7 +35,7 @@ class PiecesMapper {
                 val cellUIModel = CellUIModel(
                     position = position,
                     squareColor = if ((position.x + position.y) % 2 == 0) darkColor else lightColor,
-                    moveEnabled = true,
+                    moveEnabled = player == piece?.color,
                     markAsLegalMove = false,
                     pieceInfo = piece.toPieceUiInfo(board),
                     isChecked = piece is King && piece.isChecked,

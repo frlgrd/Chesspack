@@ -5,9 +5,8 @@ import androidx.lifecycle.viewModelScope
 import fr.chesspackcompose.app.game.domain.Board
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 
 class GameViewModel(
@@ -18,10 +17,17 @@ class GameViewModel(
     val state = _state.asStateFlow()
 
     init {
-        board.piecesFLow
-            .map { piecesMapper.map(board, it) }
-            .onEach { cells -> _state.update { it.copy(cells = cells) } }
-            .launchIn(viewModelScope)
+        combine(board.piecesFLow, board.player) { pieces, player ->
+            _state.update {
+                it.copy(
+                    cells = piecesMapper.map(
+                        board = board,
+                        pieces = pieces,
+                        player = player
+                    )
+                )
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun onEvent(event: GameUiEvent) {

@@ -20,7 +20,11 @@ class BoardImpl(
 ) : Board {
 
     private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
+    private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
+
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
+    override val player: Flow<PieceColor> get() = _player.asStateFlow()
+
 
     init {
         sendUpdate(pieces = fen.toPieces())
@@ -37,7 +41,15 @@ class BoardImpl(
         }
         piece.markAsMoved()
         updateCheckedKings()
+        switchPlayer()
         sendUpdate(pieces = pieces)
+    }
+
+    private fun switchPlayer() {
+        _player.value = when (_player.value) {
+            PieceColor.Black -> PieceColor.White
+            PieceColor.White -> PieceColor.Black
+        }
     }
 
     private fun movePiece(piece: Piece, to: PiecePosition) {
