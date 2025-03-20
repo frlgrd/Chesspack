@@ -26,7 +26,11 @@ import fr.chesspackcompose.app.game.domain.pieces.Rook
 import org.jetbrains.compose.resources.DrawableResource
 
 class PiecesMapper {
-    fun map(board: Board, pieces: Set<Piece>, player: PieceColor): List<CellUIModel> {
+    fun mapPieces(
+        board: Board,
+        pieces: Set<Piece>,
+        player: PieceColor
+    ): List<CellUIModel> {
         val result = mutableListOf<CellUIModel>()
         (0..7).forEach { x ->
             (0..7).forEach { y ->
@@ -47,6 +51,43 @@ class PiecesMapper {
         return result
     }
 
+    fun mapTakenPieces(color: PieceColor, takenPieces: Map<PieceColor, List<Piece>>): TakenPieces? {
+        val pieces = takenPieces[color] ?: return null
+        if (pieces.isEmpty()) return null
+        val piecesMap = mutableMapOf<DrawableResource, TakenPiece>()
+        pieces.groupBy { it::class }.map {
+            val piece = it.value.first()
+            piecesMap.put(
+                key = piece.drawableResource,
+                value = TakenPiece(
+                    order = piece.takenPieceOrder,
+                    count = it.value.size
+                )
+            )
+        }
+        return TakenPieces(
+            pieces = piecesMap,
+            advantageLabel = buildAdvanteLabel(
+                color = color,
+                takenPieces = takenPieces
+            )
+        )
+    }
+
+    private fun buildAdvanteLabel(
+        color: PieceColor,
+        takenPieces: Map<PieceColor, List<Piece>>
+    ): String? {
+        val otherColor = color.switch()
+        val colorScore = takenPieces[color].orEmpty().sumOf { it.power }
+        val otherColorScore = takenPieces[otherColor].orEmpty().sumOf { it.power }
+        return if (colorScore > otherColorScore) {
+            "+ ${colorScore - otherColorScore}"
+        } else {
+            null
+        }
+    }
+
     private fun Piece?.toPieceUiInfo(board: Board): PieceInfo? {
         this ?: return null
         return PieceInfo(
@@ -54,6 +95,16 @@ class PiecesMapper {
             legalMoves = board.legalMovesFor(position.x, position.y).orEmpty()
         )
     }
+
+    private val Piece.takenPieceOrder: Int
+        get() = when (this) {
+            is Bishop -> 2
+            is King -> 5
+            is Knight -> 1
+            is Pawn -> 0
+            is Queen -> 4
+            is Rook -> 3
+        }
 
     private val Piece.drawableResource: DrawableResource
         get() = when (color) {

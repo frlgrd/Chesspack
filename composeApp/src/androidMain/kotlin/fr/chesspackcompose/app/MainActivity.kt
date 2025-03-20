@@ -30,7 +30,7 @@ fun AppAndroidPreview() {
                 Res.drawable.piece_pawn_side_black to TakenPiece(order = 1, count = 3),
                 Res.drawable.piece_queen_side_black to TakenPiece(order = 3, count = 1)
             ),
-            advantage = 4
+            advantageLabel = "+ 4"
         )
     )
 }

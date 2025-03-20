@@ -3,6 +3,7 @@ package fr.chesspackcompose.app.game.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.chesspackcompose.app.game.domain.Board
+import fr.chesspackcompose.app.game.domain.PieceColor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,14 +22,23 @@ class GameViewModel(
     init {
         combine(
             board.piecesFLow,
-            board.player
-        ) { pieces, player ->
+            board.player,
+            board.takenPieces
+        ) { pieces, player, takenPieces ->
             _state.update {
                 it.copy(
-                    cells = piecesMapper.map(
+                    cells = piecesMapper.mapPieces(
                         board = board,
                         pieces = pieces,
                         player = player
+                    ),
+                    withesTaken = piecesMapper.mapTakenPieces(
+                        PieceColor.White,
+                        takenPieces
+                    ),
+                    blacksTaken = piecesMapper.mapTakenPieces(
+                        PieceColor.Black,
+                        takenPieces
                     )
                 )
             }

@@ -6,7 +6,7 @@ import fr.chesspackcompose.app.game.domain.PiecePosition
 data class King(
     override var position: PiecePosition,
     override val color: PieceColor,
-) : Piece(position = position, color = color) {
+) : Piece(position = position, color = color, power = Int.MAX_VALUE) {
     var isChecked = false
         private set
 

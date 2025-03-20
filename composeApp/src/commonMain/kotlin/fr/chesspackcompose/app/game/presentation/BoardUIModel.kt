@@ -31,7 +31,7 @@ data class PieceInfo(
 
 data class TakenPieces(
     val pieces: Map<DrawableResource, TakenPiece>,
-    val advantage: Int?
+    val advantageLabel: String?
 )
 
 data class TakenPiece(

@@ -39,9 +39,7 @@ fun BoardUi(
         }
     }
     Column(verticalArrangement = Arrangement.Center) {
-        if (state.topTaken != null) {
-            TakenPieces(takenPieces = state.topTaken)
-        }
+        TakenPieces(takenPieces = state.topTaken)
         Box(
             modifier = modifier
                 .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
@@ -57,8 +55,6 @@ fun BoardUi(
                 )
             }
         }
-        if (state.bottomTaken != null) {
-            TakenPieces(takenPieces = state.bottomTaken)
-        }
+        TakenPieces(takenPieces = state.bottomTaken)
     }
 }

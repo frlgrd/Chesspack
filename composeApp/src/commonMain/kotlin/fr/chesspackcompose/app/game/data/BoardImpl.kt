@@ -21,10 +21,13 @@ class BoardImpl(
 
     private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
     private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
-
+    private val _takenPieces: MutableStateFlow<Map<PieceColor, MutableList<Piece>>> =
+        MutableStateFlow(
+            mutableMapOf()
+        )
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
     override val player: Flow<PieceColor> get() = _player.asStateFlow()
-
+    override val takenPieces: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
 
     init {
         sendUpdate(pieces = fen.toPieces())
@@ -37,7 +40,7 @@ class BoardImpl(
         if (target?.color == piece.color) {
             castling(king = piece, rook = target)
         } else {
-            movePiece(piece = piece, to = to)
+            movePiece(piece = piece, to = to, target = target)
         }
         piece.markAsMoved()
         updateCheckedKings()
@@ -46,15 +49,21 @@ class BoardImpl(
     }
 
     private fun switchPlayer() {
-        _player.value = when (_player.value) {
-            PieceColor.Black -> PieceColor.White
-            PieceColor.White -> PieceColor.Black
-        }
+        _player.value = _player.value.switch()
     }
 
-    private fun movePiece(piece: Piece, to: PiecePosition) {
+    private fun movePiece(piece: Piece, to: PiecePosition, target: Piece?) {
         _piecesFlow.value.removeAll { it.position == to }
         piece.position = to
+        if (target != null) {
+            val taken = _takenPieces.value.toMutableMap()
+            if (taken.containsKey(target.color)) {
+                taken[target.color]!!.add(target)
+            } else {
+                taken[target.color] = mutableListOf(target)
+            }
+            _takenPieces.update { taken }
+        }
     }
 
     override fun pieceAt(x: Int, y: Int): Piece? {
