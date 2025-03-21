@@ -10,8 +10,8 @@ import org.jetbrains.compose.resources.DrawableResource
 data class CellUIModel(
     val position: PiecePosition,
     val squareColor: Color,
-    val isChecked: Boolean,
-    val isDragging: Boolean,
+    val isChecked: Boolean = false,
+    val isDragging: Boolean = false,
     val moveEnabled: Boolean = true,
     val markAsLegalMove: Boolean = false,
     val markAsHovered: Boolean = false,

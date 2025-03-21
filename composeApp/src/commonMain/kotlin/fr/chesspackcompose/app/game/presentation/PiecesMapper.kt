@@ -40,10 +40,8 @@ class PiecesMapper {
                     position = position,
                     squareColor = if ((position.x + position.y) % 2 == 0) darkColor else lightColor,
                     moveEnabled = player == piece?.color,
-                    markAsLegalMove = false,
                     pieceInfo = piece.toPieceUiInfo(board),
-                    isChecked = piece is King && piece.isChecked,
-                    isDragging = false
+                    isChecked = piece is King && piece.isChecked
                 )
                 result.add(cellUIModel)
             }
