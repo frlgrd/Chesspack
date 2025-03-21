@@ -24,13 +24,12 @@ class BoardImpl(
     private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
     private val _takenPieces: MutableStateFlow<Map<PieceColor, MutableList<Piece>>> =
         MutableStateFlow(mutableMapOf())
-    private var _promotion: Promotion? = null
     private var _winner: PieceColor? = null
 
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
     override val playerFlow: Flow<PieceColor> get() = _player.asStateFlow()
     override val takenPiecesFlow: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
-    override val promotion: Promotion? get() = _promotion
+    override var promotion: Promotion? = null
     override val winner: PieceColor? get() = _winner
 
     init {
@@ -51,7 +50,7 @@ class BoardImpl(
         piece.markAsMoved()
         globalUpdate()
         if (piece is Pawn && canBePromoted(piece)) {
-            _promotion = Promotion(piece)
+            promotion = Promotion(piece)
             sendUpdate(pieces = pieces)
             return
         }
@@ -81,7 +80,6 @@ class BoardImpl(
             Promotion.Type.KNIGHT -> Knight(position = position, color = color)
         }
         pieces.add(promotedPiece)
-        _promotion = null
         switchPlayer()
         sendUpdate(pieces = pieces)
     }

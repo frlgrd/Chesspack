@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.PieceColor
+import fr.chesspackcompose.app.game.domain.Promotion
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,24 +26,23 @@ class GameViewModel(
             board.playerFlow,
             board.takenPiecesFlow
         ) { pieces, player, takenPieces ->
-            _state.update {
-                it.copy(
-                    cells = boardMapper.mapPieces(
-                        board = board,
-                        pieces = pieces,
-                        player = player
-                    ),
-                    withesTaken = boardMapper.mapTakenPieces(
-                        PieceColor.White,
-                        takenPieces
-                    ),
-                    blacksTaken = boardMapper.mapTakenPieces(
-                        PieceColor.Black,
-                        takenPieces
-                    ),
-                    promotionUiModel = boardMapper.mapPromotion(board.promotion)
-                )
-            }
+            _state.value = _state.value.copy(
+                cells = boardMapper.mapPieces(
+                    board = board,
+                    pieces = pieces,
+                    player = player
+                ),
+                withesTaken = boardMapper.mapTakenPieces(
+                    PieceColor.White,
+                    takenPieces
+                ),
+                blacksTaken = boardMapper.mapTakenPieces(
+                    PieceColor.Black,
+                    takenPieces
+                ),
+                promotionUiModel = boardMapper.mapPromotion(board.promotion)
+            )
+            checkPromotionConsumption(board.promotion, player)
         }.launchIn(viewModelScope)
     }
 
@@ -62,7 +62,8 @@ class GameViewModel(
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
                     board.move(from = event.cell.position, to = event.at)
-                    if (board.winner == null && (board.promotion == null)) {
+                    if (board.winner == null && board.promotion == null) {
+                        delay(300)
                         rotateBoard()
                     }
                 }
@@ -92,8 +93,15 @@ class GameViewModel(
         }
     }
 
-    private suspend fun rotateBoard() {
-        delay(300)
+    private fun checkPromotionConsumption(promotion: Promotion?, player: PieceColor) {
+        promotion ?: return
+        if (promotion.pawn.color == player) return
+        board.promotion = null
+        _state.update { it.copy(promotionUiModel = null) }
+        rotateBoard()
+    }
+
+    private fun rotateBoard() {
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
     }
 }

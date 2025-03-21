@@ -41,7 +41,7 @@ class BoardMapper {
                 val cellUIModel = CellUIModel(
                     position = position,
                     squareColor = squareColor(board = board, piece = piece, position = position),
-                    moveEnabled = board.winner == null && board.promotion == null && player == piece?.color,
+                    moveEnabled = board.winner == null && player == piece?.color,
                     pieceInfo = piece.toPieceUiInfo(board),
                     isChecked = board.winner == null && piece is King && piece.isChecked
                 )
