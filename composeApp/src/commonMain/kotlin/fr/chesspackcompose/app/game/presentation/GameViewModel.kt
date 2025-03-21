@@ -23,8 +23,9 @@ class GameViewModel(
         combine(
             board.piecesFLow,
             board.player,
-            board.takenPieces
-        ) { pieces, player, takenPieces ->
+            board.takenPieces,
+            board.winner
+        ) { pieces, player, takenPieces, winner ->
             _state.update {
                 it.copy(
                     cells = piecesMapper.mapPieces(
@@ -39,7 +40,8 @@ class GameViewModel(
                     blacksTaken = piecesMapper.mapTakenPieces(
                         PieceColor.Black,
                         takenPieces
-                    )
+                    ),
+                    winner = winner
                 )
             }
         }.launchIn(viewModelScope)

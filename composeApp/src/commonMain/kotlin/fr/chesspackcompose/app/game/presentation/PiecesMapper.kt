@@ -65,14 +65,14 @@ class PiecesMapper {
         }
         return TakenPieces(
             pieces = piecesMap,
-            advantageLabel = buildAdvanteLabel(
+            advantageLabel = buildAdvantageLabel(
                 color = color,
                 takenPieces = takenPieces
             )
         )
     }
 
-    private fun buildAdvanteLabel(
+    private fun buildAdvantageLabel(
         color: PieceColor,
         takenPieces: Map<PieceColor, List<Piece>>
     ): String? {
@@ -90,7 +90,7 @@ class PiecesMapper {
         this ?: return null
         return PieceInfo(
             drawableResource = drawableResource,
-            legalMoves = board.legalMoves(position).orEmpty()
+            legalMoves = board.legalMoves(position)
         )
     }
 

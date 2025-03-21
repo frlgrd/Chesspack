@@ -21,10 +21,12 @@ class BoardImpl(
 
     private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
     private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
+    private val _winner: MutableStateFlow<PieceColor?> = MutableStateFlow(null)
     private val _takenPieces: MutableStateFlow<Map<PieceColor, MutableList<Piece>>> =
         MutableStateFlow(mutableMapOf())
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
     override val player: Flow<PieceColor> get() = _player.asStateFlow()
+    override val winner: Flow<PieceColor?> get() = _winner.asStateFlow()
     override val takenPieces: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
 
     init {
@@ -46,11 +48,6 @@ class BoardImpl(
         globalUpdate()
         switchPlayer()
         sendUpdate(pieces = pieces)
-    }
-
-    private fun globalUpdate() {
-        updateCheckedKings()
-        updateLegalMoves()
     }
 
     private fun switchPlayer() {
@@ -113,6 +110,12 @@ class BoardImpl(
         _piecesFlow.update { pieces.toMutableSet() }
     }
 
+    private fun globalUpdate() {
+        updateCheckedKings()
+        updateLegalMoves()
+        updateWinner()
+    }
+
     private fun updateCheckedKings() {
         _piecesFlow.value
             .filterIsInstance<King>()
@@ -129,6 +132,16 @@ class BoardImpl(
         _piecesFlow.value.forEach { piece ->
             piece.updateLegalMoves(moves = legalMoves(piece = piece))
         }
+    }
+
+    private fun updateWinner() {
+        val won = _piecesFlow.value
+            .filter { it.color != _player.value }
+            .map(Piece::legalMoves)
+            .flatten()
+            .isEmpty()
+
+        if (won) _winner.value = _player.value
     }
 
     // region Castling
