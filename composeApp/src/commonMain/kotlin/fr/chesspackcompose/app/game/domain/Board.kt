@@ -9,5 +9,5 @@ interface Board {
     val takenPieces: Flow<Map<PieceColor, List<Piece>>>
     fun move(from: PiecePosition, to: PiecePosition)
     fun pieceAt(pieces: Set<Piece>, x: Int, y: Int): Piece?
-    fun legalMovesFor(x: Int, y: Int): List<PiecePosition>?
+    fun legalMoves(piecePosition: PiecePosition): List<PiecePosition>?
 }

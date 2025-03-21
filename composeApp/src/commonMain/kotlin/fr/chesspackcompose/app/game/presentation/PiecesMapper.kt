@@ -90,7 +90,7 @@ class PiecesMapper {
         this ?: return null
         return PieceInfo(
             drawableResource = drawableResource,
-            legalMoves = board.legalMovesFor(position.x, position.y).orEmpty()
+            legalMoves = board.legalMoves(position).orEmpty()
         )
     }
 

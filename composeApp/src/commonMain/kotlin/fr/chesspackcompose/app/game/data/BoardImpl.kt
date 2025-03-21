@@ -70,8 +70,13 @@ class BoardImpl(
         return pieces.find { it.position.x == x && it.position.y == y }
     }
 
-    override fun legalMovesFor(x: Int, y: Int): List<PiecePosition>? {
-        val piece = pieceAt(pieces = _piecesFlow.value, x = x, y = y) ?: return null
+    override fun legalMoves(piecePosition: PiecePosition): List<PiecePosition>? {
+        val piece = pieceAt(
+            pieces = _piecesFlow.value,
+            x = piecePosition.x,
+            y = piecePosition.y
+        ) ?: return null
+
         return pseudoLegalMoves(
             pieces = _piecesFlow.value,
             piece = piece

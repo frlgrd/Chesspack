@@ -48,7 +48,7 @@ class GameViewModel(
     fun onEvent(event: GameUiEvent) {
         when (event) {
             is GameUiEvent.PiecePicked -> _state.update {
-                val legalMoves = board.legalMovesFor(event.cell.position.x, event.cell.position.y)
+                val legalMoves = board.legalMoves(event.cell.position)
                 it.copy(cells = it.cells.map { cell ->
                     val markAsLegalMove = legalMoves?.contains(cell.position) == true
                     cell.copy(
