@@ -35,7 +35,7 @@ import org.jetbrains.compose.resources.painterResource
 private val moveIndicatorColor = Color.White.copy(alpha = 0.75F)
 
 @Composable
-fun BoardCell(
+fun BoardCellUi(
     cell: CellUIModel,
     size: Dp,
     rotation: Float,

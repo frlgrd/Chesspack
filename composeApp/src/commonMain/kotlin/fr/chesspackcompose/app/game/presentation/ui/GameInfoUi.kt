@@ -11,18 +11,17 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import fr.chesspackcompose.app.game.presentation.GameInfo
 import fr.chesspackcompose.app.game.presentation.TakenPiece
-import fr.chesspackcompose.app.game.presentation.TakenPieces
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun TakenPieces(
-    takenPieces: TakenPieces?
+fun GameInfoUi(
+    gameInfo: GameInfo?
 ) {
     Row(
         modifier = Modifier
@@ -31,19 +30,17 @@ fun TakenPieces(
             .height(50.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (takenPieces != null) {
-            takenPieces.pieces.entries.sortedBy { it.value.order }.forEach { taken ->
+        if (gameInfo != null) {
+            gameInfo.takenPieces.entries.sortedBy { it.value.order }.forEach { taken ->
                 TakenPiecesGroup(takenPiece = taken.value, image = taken.key)
             }
-            if (takenPieces.advantageLabel != null) {
-                Text(
-                    modifier = Modifier.padding(start = 6.dp),
-                    text = takenPieces.advantageLabel,
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Text(
+                modifier = Modifier.padding(start = 6.dp),
+                text = gameInfo.advantage.label,
+                color = gameInfo.advantage.color,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }

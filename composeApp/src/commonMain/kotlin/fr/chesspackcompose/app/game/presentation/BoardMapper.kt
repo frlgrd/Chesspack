@@ -51,16 +51,20 @@ class BoardMapper {
         return result
     }
 
-    private fun squareColor(board: Board, piece: Piece?, position: PiecePosition): Color {
-        return when {
-            board.winner != null && piece is King -> if (piece.color == board.winner) winnerColor else looserColor
-            else -> if ((position.x + position.y) % 2 == 0) darkColor else lightColor
-        }
-    }
-
-    fun mapTakenPieces(color: PieceColor, takenPieces: Map<PieceColor, List<Piece>>): TakenPieces? {
-        val pieces = takenPieces[color] ?: return null
-        if (pieces.isEmpty()) return null
+    fun mapGameInfo(
+        color: PieceColor,
+        allPieces: Set<Piece>,
+        takenPieces: Map<PieceColor, List<Piece>>
+    ): GameInfo {
+        val advantage = buildAdvantageInfo(color = color, allPieces = allPieces)
+        val pieces = takenPieces[color.switch()] ?: return GameInfo(
+            takenPieces = emptyMap(),
+            advantage = advantage
+        )
+        if (pieces.isEmpty()) return GameInfo(
+            takenPieces = emptyMap(),
+            advantage = advantage
+        )
         val piecesMap = mutableMapOf<DrawableResource, TakenPiece>()
         pieces.groupBy { it::class }.map {
             val piece = it.value.first()
@@ -72,13 +76,7 @@ class BoardMapper {
                 )
             )
         }
-        return TakenPieces(
-            pieces = piecesMap,
-            advantageLabel = buildAdvantageLabel(
-                color = color,
-                takenPieces = takenPieces
-            )
-        )
+        return GameInfo(takenPieces = piecesMap, advantage = advantage)
     }
 
     fun mapPromotion(promotion: Promotion?): PromotionUiModel? {
@@ -86,18 +84,31 @@ class BoardMapper {
         return PromotionUiModel(items = promotion.pawn.promotionItem)
     }
 
-    private fun buildAdvantageLabel(
-        color: PieceColor,
-        takenPieces: Map<PieceColor, List<Piece>>
-    ): String? {
-        val otherColor = color.switch()
-        val colorScore = takenPieces[color].orEmpty().sumOf { it.power }
-        val otherColorScore = takenPieces[otherColor].orEmpty().sumOf { it.power }
-        return if (colorScore > otherColorScore) {
-            "+ ${colorScore - otherColorScore}"
-        } else {
-            null
+    private fun squareColor(board: Board, piece: Piece?, position: PiecePosition): Color {
+        return when {
+            board.winner != null && piece is King -> if (piece.color == board.winner) winnerColor else looserColor
+            else -> if ((position.x + position.y) % 2 == 0) darkColor else lightColor
         }
+    }
+
+    private fun buildAdvantageInfo(
+        color: PieceColor,
+        allPieces: Set<Piece>,
+    ): AdvantageInfo {
+        val colorScore = allPieces.filter { it.color == color }.sumOf { it.power }
+        val otherColorScore = allPieces.filter { it.color == color.switch() }.sumOf { it.power }
+        return AdvantageInfo(
+            label = if (colorScore > otherColorScore) {
+                "+ ${colorScore - otherColorScore}"
+            } else {
+                ""
+            },
+            color = if (color == PieceColor.White) {
+                Color.White
+            } else {
+                Color.Black
+            }
+        )
     }
 
     private fun Piece?.toPieceUiInfo(board: Board): PieceInfo? {
@@ -143,55 +154,55 @@ class BoardMapper {
         get() = when (color) {
             PieceColor.Black -> listOf(
                 PromotionItem(
-                    Res.drawable.piece_queen_side_black,
-                    Promotion.Type.QUEEN,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_queen_side_black,
+                    type = Promotion.Type.QUEEN,
+                    color = color,
+                    position = position
                 ),
                 PromotionItem(
-                    Res.drawable.piece_rook_side_black,
-                    Promotion.Type.ROOK,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_rook_side_black,
+                    type = Promotion.Type.ROOK,
+                    color = color,
+                    position = position
                 ),
                 PromotionItem(
-                    Res.drawable.piece_bishop_side_black,
-                    Promotion.Type.BISHOP,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_bishop_side_black,
+                    type = Promotion.Type.BISHOP,
+                    color = color,
+                    position = position
                 ),
                 PromotionItem(
-                    Res.drawable.piece_knight_side_black,
-                    Promotion.Type.KNIGHT,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_knight_side_black,
+                    type = Promotion.Type.KNIGHT,
+                    color = color,
+                    position = position
                 )
             )
 
             PieceColor.White -> listOf(
                 PromotionItem(
-                    Res.drawable.piece_queen_side_white,
-                    Promotion.Type.QUEEN,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_queen_side_white,
+                    type = Promotion.Type.QUEEN,
+                    color = color,
+                    position = position
                 ),
                 PromotionItem(
-                    Res.drawable.piece_rook_side_white,
-                    Promotion.Type.ROOK,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_rook_side_white,
+                    type = Promotion.Type.ROOK,
+                    color = color,
+                    position = position
                 ),
                 PromotionItem(
-                    Res.drawable.piece_bishop_side_white,
-                    Promotion.Type.BISHOP,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_bishop_side_white,
+                    type = Promotion.Type.BISHOP,
+                    color = color,
+                    position = position
                 ),
                 PromotionItem(
-                    Res.drawable.piece_knight_side_white,
-                    Promotion.Type.KNIGHT,
-                    color,
-                    position
+                    drawableResource = Res.drawable.piece_knight_side_white,
+                    type = Promotion.Type.KNIGHT,
+                    color = color,
+                    position = position
                 )
             )
         }

@@ -32,13 +32,15 @@ class GameViewModel(
                     pieces = pieces,
                     player = player
                 ),
-                withesTaken = boardMapper.mapTakenPieces(
-                    PieceColor.White,
-                    takenPieces
+                withesGameInfo = boardMapper.mapGameInfo(
+                    color = PieceColor.White,
+                    allPieces = pieces,
+                    takenPieces = takenPieces
                 ),
-                blacksTaken = boardMapper.mapTakenPieces(
-                    PieceColor.Black,
-                    takenPieces
+                blacksGameInfo = boardMapper.mapGameInfo(
+                    color = PieceColor.Black,
+                    allPieces = pieces,
+                    takenPieces = takenPieces
                 ),
                 promotionUiModel = boardMapper.mapPromotion(board.promotion)
             )

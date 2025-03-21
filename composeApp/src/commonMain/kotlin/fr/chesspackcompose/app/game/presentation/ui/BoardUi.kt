@@ -54,7 +54,7 @@ fun BoardUi(
                 .graphicsLayer { rotationZ = currentRotation }
         ) {
             state.cells.forEach { cell ->
-                BoardCell(
+                BoardCellUi(
                     cell = cell,
                     size = squareSize,
                     rotation = -currentRotation,
@@ -63,8 +63,8 @@ fun BoardUi(
             }
         }
         Column(modifier = Modifier.align(Alignment.BottomStart)) {
-            TakenPieces(takenPieces = state.withesTaken)
-            TakenPieces(takenPieces = state.blacksTaken)
+            GameInfoUi(gameInfo = state.withesGameInfo)
+            GameInfoUi(gameInfo = state.blacksGameInfo)
         }
     }
 }

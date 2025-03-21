@@ -37,9 +37,14 @@ data class PieceInfo(
     val legalMoves: List<PiecePosition>
 )
 
-data class TakenPieces(
-    val pieces: Map<DrawableResource, TakenPiece>,
-    val advantageLabel: String?
+data class GameInfo(
+    val takenPieces: Map<DrawableResource, TakenPiece>,
+    val advantage: AdvantageInfo
+)
+
+data class AdvantageInfo(
+    val label: String,
+    val color: Color
 )
 
 data class TakenPiece(
