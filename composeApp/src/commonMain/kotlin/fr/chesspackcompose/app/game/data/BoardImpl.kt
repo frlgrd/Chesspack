@@ -408,13 +408,13 @@ class BoardImpl(
         pieceColor: PieceColor,
         attackedPosition: PiecePosition? = null
     ): List<PiecePosition> {
-        val opponents = pieces.filter { it.color != pieceColor }
-        val moves = opponents
+        return pieces.asSequence()
+            .filter { it.color != pieceColor }
             .filter { it.position != attackedPosition }
             .map { pseudoLegalMoves(pieces = pieces, piece = it) }
-        return moves.toMutableSet()
             .flatten()
             .distinct()
+            .toList()
     }
     // endregion
 }
