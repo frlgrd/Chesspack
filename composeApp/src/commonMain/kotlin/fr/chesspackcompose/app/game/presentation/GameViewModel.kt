@@ -61,7 +61,7 @@ class GameViewModel(
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
                     board.move(from = event.cell.position, to = event.droppedAt)
-                    delay(500)
+                    delay(300)
                     _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
                 }
             }
