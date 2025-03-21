@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val board: Board,
-    private val piecesMapper: PiecesMapper
+    private val boardMapper: BoardMapper
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameUIState())
     val state = _state.asStateFlow()
@@ -27,19 +27,20 @@ class GameViewModel(
         ) { pieces, player, takenPieces ->
             _state.update {
                 it.copy(
-                    cells = piecesMapper.mapPieces(
+                    cells = boardMapper.mapPieces(
                         board = board,
                         pieces = pieces,
                         player = player
                     ),
-                    withesTaken = piecesMapper.mapTakenPieces(
+                    withesTaken = boardMapper.mapTakenPieces(
                         PieceColor.White,
                         takenPieces
                     ),
-                    blacksTaken = piecesMapper.mapTakenPieces(
+                    blacksTaken = boardMapper.mapTakenPieces(
                         PieceColor.Black,
                         takenPieces
-                    )
+                    ),
+                    promotionUiModel = boardMapper.mapPromotion(board.promotion)
                 )
             }
         }.launchIn(viewModelScope)
@@ -61,7 +62,7 @@ class GameViewModel(
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
                     board.move(from = event.cell.position, to = event.at)
-                    if (board.winner == null) {
+                    if (board.winner == null && board.promotion == null) {
                         delay(300)
                         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
                     }

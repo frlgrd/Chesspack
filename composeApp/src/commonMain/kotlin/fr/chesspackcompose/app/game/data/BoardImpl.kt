@@ -3,6 +3,7 @@ package fr.chesspackcompose.app.game.data
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
+import fr.chesspackcompose.app.game.domain.Promotion
 import fr.chesspackcompose.app.game.domain.pieces.Bishop
 import fr.chesspackcompose.app.game.domain.pieces.King
 import fr.chesspackcompose.app.game.domain.pieces.Knight
@@ -23,11 +24,13 @@ class BoardImpl(
     private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
     private val _takenPieces: MutableStateFlow<Map<PieceColor, MutableList<Piece>>> =
         MutableStateFlow(mutableMapOf())
+    private var _promotion: Promotion? = null
     private var _winner: PieceColor? = null
 
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
     override val playerFlow: Flow<PieceColor> get() = _player.asStateFlow()
     override val takenPiecesFlow: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
+    override val promotion: Promotion? get() = _promotion
     override val winner: PieceColor? get() = _winner
 
     init {
@@ -47,6 +50,11 @@ class BoardImpl(
         }
         piece.markAsMoved()
         globalUpdate()
+        if (piece is Pawn && canBePromoted(piece)) {
+            _promotion = Promotion(piece)
+            sendUpdate(pieces = pieces)
+            return
+        }
         switchPlayer()
         sendUpdate(pieces = pieces)
     }
@@ -57,6 +65,11 @@ class BoardImpl(
 
     override fun legalMoves(piecePosition: PiecePosition): List<PiecePosition> {
         return _piecesFlow.value.find { it.position == piecePosition }?.legalMoves.orEmpty()
+    }
+
+    override fun doPromotion(piecePosition: PiecePosition, type: Promotion.Type) {
+        _promotion = null
+        switchPlayer()
     }
 
     private fun movePiece(piece: Piece, to: PiecePosition, target: Piece?) {
@@ -143,6 +156,13 @@ class BoardImpl(
             attackedPosition = position
         )
         return opponentsMoves.contains(kingPosition)
+    }
+
+    private fun canBePromoted(pawn: Pawn): Boolean {
+        return when (pawn.color) {
+            PieceColor.Black -> pawn.position.y == 7
+            PieceColor.White -> pawn.position.y == 0
+        }
     }
 
     // region Castling

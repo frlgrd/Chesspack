@@ -17,6 +17,7 @@ import chesspackcompose.composeapp.generated.resources.piece_rook_side_white
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
+import fr.chesspackcompose.app.game.domain.Promotion
 import fr.chesspackcompose.app.game.domain.pieces.Bishop
 import fr.chesspackcompose.app.game.domain.pieces.King
 import fr.chesspackcompose.app.game.domain.pieces.Knight
@@ -26,7 +27,7 @@ import fr.chesspackcompose.app.game.domain.pieces.Queen
 import fr.chesspackcompose.app.game.domain.pieces.Rook
 import org.jetbrains.compose.resources.DrawableResource
 
-class PiecesMapper {
+class BoardMapper {
     fun mapPieces(
         board: Board,
         pieces: Set<Piece>,
@@ -40,7 +41,7 @@ class PiecesMapper {
                 val cellUIModel = CellUIModel(
                     position = position,
                     squareColor = squareColor(board = board, piece = piece, position = position),
-                    moveEnabled = board.winner == null && player == piece?.color,
+                    moveEnabled = board.winner == null && board.promotion == null && player == piece?.color,
                     pieceInfo = piece.toPieceUiInfo(board),
                     isChecked = board.winner == null && piece is King && piece.isChecked
                 )
@@ -78,6 +79,11 @@ class PiecesMapper {
                 takenPieces = takenPieces
             )
         )
+    }
+
+    fun mapPromotion(promotion: Promotion?): PromotionUiModel? {
+        promotion ?: return null
+        return PromotionUiModel(items = promotion.pawn.color.promotionItem)
     }
 
     private fun buildAdvantageLabel(
@@ -131,5 +137,22 @@ class PiecesMapper {
                 is Queen -> Res.drawable.piece_queen_side_white
                 is Rook -> Res.drawable.piece_rook_side_white
             }
+        }
+
+    private val PieceColor.promotionItem: List<PromotionItem>
+        get() = when (this) {
+            PieceColor.Black -> listOf(
+                PromotionItem(Res.drawable.piece_queen_side_black, Promotion.Type.QUEEN),
+                PromotionItem(Res.drawable.piece_rook_side_black, Promotion.Type.ROOK),
+                PromotionItem(Res.drawable.piece_bishop_side_black, Promotion.Type.BISHOP),
+                PromotionItem(Res.drawable.piece_knight_side_black, Promotion.Type.KNIGHT)
+            )
+
+            PieceColor.White -> listOf(
+                PromotionItem(Res.drawable.piece_queen_side_white, Promotion.Type.QUEEN),
+                PromotionItem(Res.drawable.piece_rook_side_white, Promotion.Type.ROOK),
+                PromotionItem(Res.drawable.piece_bishop_side_white, Promotion.Type.BISHOP),
+                PromotionItem(Res.drawable.piece_knight_side_white, Promotion.Type.KNIGHT)
+            )
         }
 }

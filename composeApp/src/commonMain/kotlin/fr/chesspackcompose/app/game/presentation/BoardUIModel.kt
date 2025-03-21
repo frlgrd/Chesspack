@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import fr.chesspackcompose.app.game.domain.PiecePosition
+import fr.chesspackcompose.app.game.domain.Promotion
 import org.jetbrains.compose.resources.DrawableResource
 
 @Immutable
@@ -43,4 +44,13 @@ data class TakenPieces(
 data class TakenPiece(
     val order: Int,
     val count: Int
+)
+
+data class PromotionUiModel(
+    val items: List<PromotionItem>
+)
+
+data class PromotionItem(
+    val drawableResource: DrawableResource,
+    val type: Promotion.Type
 )
