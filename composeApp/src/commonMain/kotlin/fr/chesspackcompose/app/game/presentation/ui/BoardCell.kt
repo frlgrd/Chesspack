@@ -32,7 +32,7 @@ import fr.chesspackcompose.app.game.presentation.CellUIModel
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import org.jetbrains.compose.resources.painterResource
 
-private val moveIndicatorColor = Color.White.copy(alpha = 0.5F)
+private val moveIndicatorColor = Color.White.copy(alpha = 0.75F)
 
 @Composable
 fun BoardCell(
