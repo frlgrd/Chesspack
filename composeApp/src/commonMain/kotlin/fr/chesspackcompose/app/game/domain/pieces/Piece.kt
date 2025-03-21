@@ -14,4 +14,13 @@ sealed class Piece(
     fun markAsMoved() {
         moved = true
     }
+
+    fun copyPiece() = when (this) {
+        is Bishop -> copy()
+        is King -> copy()
+        is Knight -> copy()
+        is Pawn -> copy()
+        is Queen -> copy()
+        is Rook -> copy()
+    }
 }
