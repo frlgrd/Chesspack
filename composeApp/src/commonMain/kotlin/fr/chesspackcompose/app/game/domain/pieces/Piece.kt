@@ -8,8 +8,14 @@ sealed class Piece(
     open val color: PieceColor,
     val power: Int
 ) {
+    var legalMoves: List<PiecePosition> = emptyList()
+        private set
     var moved = false
         private set
+
+    fun updateLegalMoves(moves: List<PiecePosition>) {
+        legalMoves = moves
+    }
 
     fun markAsMoved() {
         moved = true

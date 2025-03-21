@@ -29,7 +29,7 @@ class BoardImpl(
 
     init {
         _piecesFlow.value = fen.toPieces().toMutableSet()
-        updateCheckedKings()
+        globalUpdate()
         sendUpdate(pieces = _piecesFlow.value)
     }
 
@@ -43,9 +43,14 @@ class BoardImpl(
             movePiece(piece = piece, to = to, target = target)
         }
         piece.markAsMoved()
-        updateCheckedKings()
+        globalUpdate()
         switchPlayer()
         sendUpdate(pieces = pieces)
+    }
+
+    private fun globalUpdate() {
+        updateCheckedKings()
+        updateLegalMoves()
     }
 
     private fun switchPlayer() {
@@ -70,13 +75,11 @@ class BoardImpl(
         return pieces.find { it.position.x == x && it.position.y == y }
     }
 
-    override fun legalMoves(piecePosition: PiecePosition): List<PiecePosition>? {
-        val piece = pieceAt(
-            pieces = _piecesFlow.value,
-            x = piecePosition.x,
-            y = piecePosition.y
-        ) ?: return null
+    override fun legalMoves(piecePosition: PiecePosition): List<PiecePosition> {
+        return _piecesFlow.value.find { it.position == piecePosition }?.legalMoves.orEmpty()
+    }
 
+    private fun legalMoves(piece: Piece): List<PiecePosition> {
         return pseudoLegalMoves(
             pieces = _piecesFlow.value,
             piece = piece
@@ -120,6 +123,12 @@ class BoardImpl(
                 ).contains(king.position)
                 king.updateCheck(isChecked = isChecked)
             }
+    }
+
+    private fun updateLegalMoves() {
+        _piecesFlow.value.forEach { piece ->
+            piece.updateLegalMoves(moves = legalMoves(piece = piece))
+        }
     }
 
     // region Castling
