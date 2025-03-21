@@ -22,10 +22,9 @@ class GameViewModel(
     init {
         combine(
             board.piecesFLow,
-            board.player,
-            board.takenPieces,
-            board.winner
-        ) { pieces, player, takenPieces, winner ->
+            board.playerFlow,
+            board.takenPiecesFlow
+        ) { pieces, player, takenPieces ->
             _state.update {
                 it.copy(
                     cells = piecesMapper.mapPieces(
@@ -40,8 +39,7 @@ class GameViewModel(
                     blacksTaken = piecesMapper.mapTakenPieces(
                         PieceColor.Black,
                         takenPieces
-                    ),
-                    winner = winner
+                    )
                 )
             }
         }.launchIn(viewModelScope)
@@ -52,7 +50,7 @@ class GameViewModel(
             is GameUiEvent.PiecePicked -> _state.update {
                 val legalMoves = board.legalMoves(event.cell.position)
                 it.copy(cells = it.cells.map { cell ->
-                    val markAsLegalMove = legalMoves?.contains(cell.position) == true
+                    val markAsLegalMove = legalMoves.contains(cell.position)
                     cell.copy(
                         markAsLegalMove = markAsLegalMove,
                         isDragging = cell == event.cell
@@ -63,8 +61,10 @@ class GameViewModel(
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
                     board.move(from = event.cell.position, to = event.at)
-                    delay(300)
-                    _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
+                    if (board.winner == null) {
+                        delay(300)
+                        _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
+                    }
                 }
             }
 

@@ -21,13 +21,14 @@ class BoardImpl(
 
     private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
     private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
-    private val _winner: MutableStateFlow<PieceColor?> = MutableStateFlow(null)
     private val _takenPieces: MutableStateFlow<Map<PieceColor, MutableList<Piece>>> =
         MutableStateFlow(mutableMapOf())
+    private var _winner: PieceColor? = null
+
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
-    override val player: Flow<PieceColor> get() = _player.asStateFlow()
-    override val winner: Flow<PieceColor?> get() = _winner.asStateFlow()
-    override val takenPieces: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
+    override val playerFlow: Flow<PieceColor> get() = _player.asStateFlow()
+    override val takenPiecesFlow: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
+    override val winner: PieceColor? get() = _winner
 
     init {
         _piecesFlow.value = fen.toPieces().toMutableSet()
@@ -50,8 +51,12 @@ class BoardImpl(
         sendUpdate(pieces = pieces)
     }
 
-    private fun switchPlayer() {
-        _player.value = _player.value.switch()
+    override fun pieceAt(pieces: Set<Piece>, x: Int, y: Int): Piece? {
+        return pieces.find { it.position.x == x && it.position.y == y }
+    }
+
+    override fun legalMoves(piecePosition: PiecePosition): List<PiecePosition> {
+        return _piecesFlow.value.find { it.position == piecePosition }?.legalMoves.orEmpty()
     }
 
     private fun movePiece(piece: Piece, to: PiecePosition, target: Piece?) {
@@ -68,46 +73,12 @@ class BoardImpl(
         }
     }
 
-    override fun pieceAt(pieces: Set<Piece>, x: Int, y: Int): Piece? {
-        return pieces.find { it.position.x == x && it.position.y == y }
-    }
-
-    override fun legalMoves(piecePosition: PiecePosition): List<PiecePosition> {
-        return _piecesFlow.value.find { it.position == piecePosition }?.legalMoves.orEmpty()
-    }
-
-    private fun legalMoves(piece: Piece): List<PiecePosition> {
-        return pseudoLegalMoves(
-            pieces = _piecesFlow.value,
-            piece = piece
-        ).filterNot { isIllegalMove(piece = piece, position = it) }
-    }
-
-    private fun isIllegalMove(
-        piece: Piece,
-        position: PiecePosition,
-    ): Boolean {
-        val piecesAfterMove = _piecesFlow.value.map(Piece::copyPiece).toMutableSet()
-        piecesAfterMove.removeAll { it.position == position }
-        val updatedPiece = piecesAfterMove.find {
-            it.position == piece.position
-        }
-        updatedPiece?.position = position
-        val kingPosition = piecesAfterMove
-            .filterIsInstance<King>()
-            .first { it.color == piece.color }
-            .position
-
-        val opponentsMoves = opponentsMoves(
-            pieces = piecesAfterMove,
-            pieceColor = piece.color,
-            attackedPosition = position
-        )
-        return opponentsMoves.contains(kingPosition)
-    }
-
     private fun sendUpdate(pieces: Set<Piece>) {
         _piecesFlow.update { pieces.toMutableSet() }
+    }
+
+    private fun switchPlayer() {
+        _player.value = _player.value.switch()
     }
 
     private fun globalUpdate() {
@@ -141,7 +112,37 @@ class BoardImpl(
             .flatten()
             .isEmpty()
 
-        if (won) _winner.value = _player.value
+        if (won) _winner = _player.value
+    }
+
+    private fun legalMoves(piece: Piece): List<PiecePosition> {
+        return pseudoLegalMoves(
+            pieces = _piecesFlow.value,
+            piece = piece
+        ).filterNot { isIllegalMove(piece = piece, position = it) }
+    }
+
+    private fun isIllegalMove(
+        piece: Piece,
+        position: PiecePosition,
+    ): Boolean {
+        val piecesAfterMove = _piecesFlow.value.map(Piece::copyPiece).toMutableSet()
+        piecesAfterMove.removeAll { it.position == position }
+        val updatedPiece = piecesAfterMove.find {
+            it.position == piece.position
+        }
+        updatedPiece?.position = position
+        val kingPosition = piecesAfterMove
+            .filterIsInstance<King>()
+            .first { it.color == piece.color }
+            .position
+
+        val opponentsMoves = opponentsMoves(
+            pieces = piecesAfterMove,
+            pieceColor = piece.color,
+            attackedPosition = position
+        )
+        return opponentsMoves.contains(kingPosition)
     }
 
     // region Castling
