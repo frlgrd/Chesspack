@@ -24,3 +24,5 @@ on [GitHub](https://github.com/JetBrains/compose-multiplatform/issues).
 
 You can open the web application by running the `:composeApp:wasmJsBrowserDevelopmentRun` Gradle
 task.
+
+![image info](./doc/images/screenshot.png)
