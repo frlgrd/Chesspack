@@ -97,17 +97,11 @@ class BoardMapper {
     ): AdvantageInfo {
         val colorScore = allPieces.filter { it.color == color }.sumOf { it.power }
         val otherColorScore = allPieces.filter { it.color == color.switch() }.sumOf { it.power }
+        val label = if (colorScore > otherColorScore) "+ ${colorScore - otherColorScore}" else ""
+        val uiColor = if (color == PieceColor.White) Color.White else Color.Black
         return AdvantageInfo(
-            label = if (colorScore > otherColorScore) {
-                "+ ${colorScore - otherColorScore}"
-            } else {
-                ""
-            },
-            color = if (color == PieceColor.White) {
-                Color.White
-            } else {
-                Color.Black
-            }
+            label = label,
+            color = uiColor
         )
     }
 
