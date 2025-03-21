@@ -5,15 +5,4 @@ data class GameUIState(
     val boardRotation: Float = 0F,
     val withesTaken: TakenPieces? = null,
     val blacksTaken: TakenPieces? = null,
-) {
-    val topTaken = if (boardRotation == 0F) {
-        withesTaken
-    } else {
-        blacksTaken
-    }
-    val bottomTaken = if (boardRotation == 0F) {
-        blacksTaken
-    } else {
-        withesTaken
-    }
-}
+)

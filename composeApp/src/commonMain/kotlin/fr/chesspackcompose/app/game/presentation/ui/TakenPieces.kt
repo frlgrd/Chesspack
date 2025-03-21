@@ -3,6 +3,7 @@ package fr.chesspackcompose.app.game.presentation.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -25,6 +26,7 @@ fun TakenPieces(
 ) {
     Row(
         modifier = Modifier
+            .fillMaxWidth()
             .padding(10.dp)
             .height(50.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -54,7 +56,7 @@ private fun TakenPiecesGroup(
     Box {
         repeat(takenPiece.count) { index ->
             Image(
-                modifier = Modifier.padding(start = 15.dp.times(index)).size(40.dp),
+                modifier = Modifier.padding(start = 12.dp.times(index)).size(40.dp),
                 painter = painterResource(image),
                 contentDescription = null
             )

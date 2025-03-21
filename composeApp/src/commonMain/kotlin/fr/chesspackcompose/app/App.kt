@@ -2,7 +2,7 @@ package fr.chesspackcompose.app
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,7 +25,9 @@ fun App() {
             val viewModel = koinViewModel<GameViewModel>()
             val state by viewModel.state.collectAsStateWithLifecycle()
             Box(
-                modifier = Modifier.fillMaxSize().background(Color.DarkGray),
+                modifier = Modifier
+                    .background(Color.DarkGray)
+                    .safeDrawingPadding(),
                 contentAlignment = Alignment.Center
             ) {
                 BoardUi(state = state, onEvent = viewModel::onEvent)
