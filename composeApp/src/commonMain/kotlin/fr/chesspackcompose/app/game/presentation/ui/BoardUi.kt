@@ -21,7 +21,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import fr.chesspackcompose.app.game.presentation.GameUIState
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
-import kotlin.math.abs
 
 @Composable
 fun BoardUi(
@@ -33,14 +32,12 @@ fun BoardUi(
     val density = LocalDensity.current
     var currentRotation by remember { mutableStateOf(state.boardRotation) }
     val rotation = remember { Animatable(currentRotation) }
-    var takenPiecesAlpha by remember { mutableStateOf(1F) }
     LaunchedEffect(state.boardRotation) {
         rotation.animateTo(
             targetValue = state.boardRotation,
             animationSpec = tween(durationMillis = 700)
         ) {
             currentRotation = value
-            takenPiecesAlpha = abs((currentRotation - 90F)) / 90F
         }
     }
     Box(modifier = modifier.fillMaxSize()) {
