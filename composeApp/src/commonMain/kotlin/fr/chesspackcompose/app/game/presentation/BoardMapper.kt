@@ -83,7 +83,7 @@ class BoardMapper {
 
     fun mapPromotion(promotion: Promotion?): PromotionUiModel? {
         promotion ?: return null
-        return PromotionUiModel(items = promotion.pawn.color.promotionItem)
+        return PromotionUiModel(items = promotion.pawn.promotionItem)
     }
 
     private fun buildAdvantageLabel(
@@ -139,20 +139,60 @@ class BoardMapper {
             }
         }
 
-    private val PieceColor.promotionItem: List<PromotionItem>
-        get() = when (this) {
+    private val Piece.promotionItem: List<PromotionItem>
+        get() = when (color) {
             PieceColor.Black -> listOf(
-                PromotionItem(Res.drawable.piece_queen_side_black, Promotion.Type.QUEEN),
-                PromotionItem(Res.drawable.piece_rook_side_black, Promotion.Type.ROOK),
-                PromotionItem(Res.drawable.piece_bishop_side_black, Promotion.Type.BISHOP),
-                PromotionItem(Res.drawable.piece_knight_side_black, Promotion.Type.KNIGHT)
+                PromotionItem(
+                    Res.drawable.piece_queen_side_black,
+                    Promotion.Type.QUEEN,
+                    color,
+                    position
+                ),
+                PromotionItem(
+                    Res.drawable.piece_rook_side_black,
+                    Promotion.Type.ROOK,
+                    color,
+                    position
+                ),
+                PromotionItem(
+                    Res.drawable.piece_bishop_side_black,
+                    Promotion.Type.BISHOP,
+                    color,
+                    position
+                ),
+                PromotionItem(
+                    Res.drawable.piece_knight_side_black,
+                    Promotion.Type.KNIGHT,
+                    color,
+                    position
+                )
             )
 
             PieceColor.White -> listOf(
-                PromotionItem(Res.drawable.piece_queen_side_white, Promotion.Type.QUEEN),
-                PromotionItem(Res.drawable.piece_rook_side_white, Promotion.Type.ROOK),
-                PromotionItem(Res.drawable.piece_bishop_side_white, Promotion.Type.BISHOP),
-                PromotionItem(Res.drawable.piece_knight_side_white, Promotion.Type.KNIGHT)
+                PromotionItem(
+                    Res.drawable.piece_queen_side_white,
+                    Promotion.Type.QUEEN,
+                    color,
+                    position
+                ),
+                PromotionItem(
+                    Res.drawable.piece_rook_side_white,
+                    Promotion.Type.ROOK,
+                    color,
+                    position
+                ),
+                PromotionItem(
+                    Res.drawable.piece_bishop_side_white,
+                    Promotion.Type.BISHOP,
+                    color,
+                    position
+                ),
+                PromotionItem(
+                    Res.drawable.piece_knight_side_white,
+                    Promotion.Type.KNIGHT,
+                    color,
+                    position
+                )
             )
         }
 }

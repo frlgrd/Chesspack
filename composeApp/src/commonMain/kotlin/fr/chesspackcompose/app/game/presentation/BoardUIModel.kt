@@ -3,6 +3,7 @@ package fr.chesspackcompose.app.game.presentation
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
+import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
 import org.jetbrains.compose.resources.DrawableResource
@@ -52,5 +53,7 @@ data class PromotionUiModel(
 
 data class PromotionItem(
     val drawableResource: DrawableResource,
-    val type: Promotion.Type
+    val type: Promotion.Type,
+    val color: PieceColor,
+    val position: PiecePosition
 )

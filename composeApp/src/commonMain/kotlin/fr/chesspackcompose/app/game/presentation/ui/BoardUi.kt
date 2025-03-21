@@ -40,6 +40,10 @@ fun BoardUi(
             currentRotation = value
         }
     }
+
+    if (state.promotionUiModel != null) {
+        PromotionDialog(promotion = state.promotionUiModel, onEvent = onEvent)
+    }
     Box(modifier = modifier.fillMaxSize()) {
         Box(
             modifier = Modifier

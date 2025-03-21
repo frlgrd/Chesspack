@@ -7,4 +7,5 @@ sealed interface GameUiEvent {
     data class PieceDropped(val cell: CellUIModel, val at: PiecePosition) : GameUiEvent
     data class PieceDragging(val at: PiecePosition) : GameUiEvent
     data object DragCanceled : GameUiEvent
+    data class OnPromotion(val promotionItem: PromotionItem) : GameUiEvent
 }

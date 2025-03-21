@@ -62,9 +62,8 @@ class GameViewModel(
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
                     board.move(from = event.cell.position, to = event.at)
-                    if (board.winner == null && board.promotion == null) {
-                        delay(300)
-                        _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
+                    if (board.winner == null && (board.promotion == null)) {
+                        rotateBoard()
                     }
                 }
             }
@@ -84,6 +83,17 @@ class GameViewModel(
                     cell.copy(markAsHovered = cell.position == event.at)
                 })
             }
+
+            is GameUiEvent.OnPromotion -> board.promote(
+                position = event.promotionItem.position,
+                color = event.promotionItem.color,
+                type = event.promotionItem.type
+            )
         }
+    }
+
+    private suspend fun rotateBoard() {
+        delay(300)
+        _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
     }
 }

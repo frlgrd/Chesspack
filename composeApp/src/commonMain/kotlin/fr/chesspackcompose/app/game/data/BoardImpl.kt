@@ -63,13 +63,27 @@ class BoardImpl(
         return pieces.find { it.position.x == x && it.position.y == y }
     }
 
-    override fun legalMoves(piecePosition: PiecePosition): List<PiecePosition> {
-        return _piecesFlow.value.find { it.position == piecePosition }?.legalMoves.orEmpty()
+    override fun legalMoves(position: PiecePosition): List<PiecePosition> {
+        return _piecesFlow.value.find { it.position == position }?.legalMoves.orEmpty()
     }
 
-    override fun doPromotion(piecePosition: PiecePosition, type: Promotion.Type) {
+    override fun promote(
+        position: PiecePosition,
+        color: PieceColor,
+        type: Promotion.Type
+    ) {
+        val pieces = _piecesFlow.value
+        pieces.removeAll { it.position == position }
+        val promotedPiece = when (type) {
+            Promotion.Type.QUEEN -> Queen(position = position, color = color)
+            Promotion.Type.ROOK -> Rook(position = position, color = color)
+            Promotion.Type.BISHOP -> Bishop(position = position, color = color)
+            Promotion.Type.KNIGHT -> Knight(position = position, color = color)
+        }
+        pieces.add(promotedPiece)
         _promotion = null
         switchPlayer()
+        sendUpdate(pieces = pieces)
     }
 
     private fun movePiece(piece: Piece, to: PiecePosition, target: Piece?) {

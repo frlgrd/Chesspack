@@ -11,6 +11,6 @@ interface Board {
     val winner: PieceColor?
     fun move(from: PiecePosition, to: PiecePosition)
     fun pieceAt(pieces: Set<Piece>, x: Int, y: Int): Piece?
-    fun legalMoves(piecePosition: PiecePosition): List<PiecePosition>
-    fun doPromotion(piecePosition: PiecePosition, type: Promotion.Type)
+    fun legalMoves(position: PiecePosition): List<PiecePosition>
+    fun promote(position: PiecePosition, color: PieceColor, type: Promotion.Type)
 }
