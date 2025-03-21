@@ -2,6 +2,7 @@ package fr.chesspackcompose.app.game.presentation
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import org.jetbrains.compose.resources.DrawableResource
 
@@ -13,11 +14,16 @@ data class CellUIModel(
     val isDragging: Boolean,
     val moveEnabled: Boolean = true,
     val markAsLegalMove: Boolean = false,
+    val markAsHovered: Boolean = false,
     val pieceInfo: PieceInfo? = null
 ) {
+    private val originalPosition = originalPositionColorWithAlpha.compositeOver(squareColor)
+    private val hoverColor = hoverColorWithAlpha.compositeOver(squareColor)
+
     val backgroundColor: Color = when {
-        isDragging -> originalPositionColor
+        isDragging -> originalPosition
         isChecked -> checkmatedColor
+        markAsHovered -> hoverColor
         else -> squareColor
     }
 

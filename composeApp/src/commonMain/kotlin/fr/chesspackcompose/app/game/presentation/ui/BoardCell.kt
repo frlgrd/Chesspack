@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -81,6 +82,18 @@ fun BoardCell(
             }
     )
     if (cell.pieceInfo != null) {
+        var dragX by remember { mutableIntStateOf(0) }
+        var dragY by remember { mutableIntStateOf(0) }
+
+        val dragPosition by remember(dragX, dragY) {
+            mutableStateOf(PiecePosition(x = dragX, y = dragY))
+        }
+
+        LaunchedEffect(dragPosition, isDragging) {
+            if (isDragging) {
+                onEvent(GameUiEvent.PieceDragging(at = dragPosition))
+            }
+        }
         Image(
             modifier = Modifier
                 .offset(x = xLocation, y = yLocation)
@@ -99,7 +112,13 @@ fun BoardCell(
                                 isDragging = true
                                 onEvent(GameUiEvent.PiecePicked(cell = cell))
                             },
-                            onDrag = { _, dragAmount -> dragOffset += dragAmount },
+                            onDrag = { _, dragAmount ->
+                                dragOffset += dragAmount
+                                dragX =
+                                    ((((dragOffset.x + sizeInPixel / 2) / sizeInPixel)) + cell.position.x).toInt()
+                                dragY =
+                                    ((((dragOffset.y + sizeInPixel / 2) / sizeInPixel)) + cell.position.y).toInt()
+                            },
                             onDragEnd = {
                                 isDragging = false
                                 val position = PiecePosition(
@@ -109,7 +128,7 @@ fun BoardCell(
 
                                 if (cell.pieceInfo.legalMoves.contains(position)) {
                                     onEvent(
-                                        GameUiEvent.PieceDropped(cell = cell, droppedAt = position)
+                                        GameUiEvent.PieceDropped(cell = cell, at = position)
                                     )
                                     dragOffset = Offset.Zero
                                 } else {

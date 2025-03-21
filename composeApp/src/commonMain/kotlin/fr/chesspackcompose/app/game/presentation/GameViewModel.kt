@@ -60,7 +60,7 @@ class GameViewModel(
 
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
-                    board.move(from = event.cell.position, to = event.droppedAt)
+                    board.move(from = event.cell.position, to = event.at)
                     delay(300)
                     _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
                 }
@@ -70,8 +70,15 @@ class GameViewModel(
                 it.copy(cells = it.cells.map { cell ->
                     cell.copy(
                         markAsLegalMove = false,
-                        isDragging = false
+                        isDragging = false,
+                        markAsHovered = false
                     )
+                })
+            }
+
+            is GameUiEvent.PieceDragging -> _state.update {
+                it.copy(cells = it.cells.map { cell ->
+                    cell.copy(markAsHovered = cell.position == event.at)
                 })
             }
         }
