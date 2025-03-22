@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface Board {
     val piecesFLow: Flow<Set<Piece>>
     val playerFlow: Flow<PieceColor>
+    val moveResult: Flow<MoveResult?>
     val takenPiecesFlow: Flow<Map<PieceColor, List<Piece>>>
     var promotion: Promotion?
     val winner: PieceColor?

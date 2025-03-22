@@ -1,13 +1,11 @@
 package fr.chesspackcompose.app.core.audio
 
+import androidx.media3.exoplayer.ExoPlayer
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
 actual val audioModule: Module
     get() = module {
-        single<SoundEffectPlayer> {
-            SoundEffectPlayerImpl(
-                context = get()
-            )
-        }
+        single<ExoPlayer> { ExoPlayer.Builder(get()).build() }
+        single<SoundEffectPlayer> { SoundEffectPlayerImpl(player = get()) }
     }

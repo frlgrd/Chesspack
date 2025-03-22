@@ -1,9 +1,25 @@
 package fr.chesspackcompose.app.core.audio
 
-import android.content.Context
+import androidx.media3.common.MediaItem
+import androidx.media3.exoplayer.ExoPlayer
 
-actual class SoundEffectPlayerImpl(val context: Context) : SoundEffectPlayer {
-    override fun playSound() {
+actual class SoundEffectPlayerImpl(
+    private val player: ExoPlayer
+) : SoundEffectPlayer {
 
+    private val mediaItems = mutableMapOf<String, MediaItem>()
+
+    init {
+        player.prepare()
+    }
+
+    override fun play(uri: String) {
+        val mediaItem = mediaItems.getOrPut(uri) { MediaItem.fromUri(uri) }
+        player.setMediaItem(mediaItem)
+        player.play()
+    }
+
+    override fun release() {
+        player.release()
     }
 }

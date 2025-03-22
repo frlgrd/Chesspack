@@ -2,8 +2,10 @@ package fr.chesspackcompose.app.game.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import chesspackcompose.composeapp.generated.resources.Res
 import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
+import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.Promotion
 import kotlinx.coroutines.delay
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 class GameViewModel(
     private val board: Board,
@@ -26,8 +29,9 @@ class GameViewModel(
         combine(
             board.piecesFLow,
             board.playerFlow,
-            board.takenPiecesFlow
-        ) { pieces, player, takenPieces ->
+            board.takenPiecesFlow,
+            board.moveResult,
+        ) { pieces, player, takenPieces, moveResult ->
             _state.value = _state.value.copy(
                 cells = boardMapper.mapPieces(
                     board = board,
@@ -47,7 +51,13 @@ class GameViewModel(
                 promotionUiModel = boardMapper.mapPromotion(board.promotion)
             )
             checkPromotionConsumption(board.promotion, player)
+            playSoundEffect(moveResult)
         }.launchIn(viewModelScope)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        soundEffectPlayer.release()
     }
 
     fun onEvent(event: GameUiEvent) {
@@ -107,5 +117,18 @@ class GameViewModel(
 
     private fun rotateBoard() {
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    private fun playSoundEffect(moveResult: MoveResult?) {
+        val soundEffectFileName = when (moveResult) {
+            MoveResult.Castling, MoveResult.SimpleMove -> "files/move.mp3"
+            MoveResult.Check, MoveResult.Capture -> "files/capture.mp3"
+            MoveResult.Checkmate -> "files/notify.mp3"
+            null -> null
+        } ?: return
+
+        val uri = Res.getUri(soundEffectFileName)
+        soundEffectPlayer.play(uri = uri)
     }
 }

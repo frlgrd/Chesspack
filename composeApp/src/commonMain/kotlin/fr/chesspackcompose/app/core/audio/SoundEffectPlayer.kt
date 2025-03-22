@@ -1,5 +1,6 @@
 package fr.chesspackcompose.app.core.audio
 
 interface SoundEffectPlayer {
-    fun playSound()
+    fun play(uri: String)
+    fun release()
 }

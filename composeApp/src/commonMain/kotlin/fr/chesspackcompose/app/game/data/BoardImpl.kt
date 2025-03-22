@@ -1,6 +1,7 @@
 package fr.chesspackcompose.app.game.data
 
 import fr.chesspackcompose.app.game.domain.Board
+import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
@@ -24,11 +25,14 @@ class BoardImpl(
     private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
     private val _takenPieces: MutableStateFlow<Map<PieceColor, MutableList<Piece>>> =
         MutableStateFlow(mutableMapOf())
+    private val _moveResult: MutableStateFlow<MoveResult?> = MutableStateFlow(null)
     private var _winner: PieceColor? = null
 
     override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
     override val playerFlow: Flow<PieceColor> get() = _player.asStateFlow()
     override val takenPiecesFlow: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
+    override val moveResult: Flow<MoveResult?>
+        get() = _moveResult
     override var promotion: Promotion? = null
     override val winner: PieceColor? get() = _winner
 
@@ -88,6 +92,7 @@ class BoardImpl(
         _piecesFlow.value.removeAll { it.position == to }
         piece.position = to
         if (target != null) {
+            updateMoveResult(MoveResult.Capture)
             val taken = _takenPieces.value.toMutableMap()
             if (taken.containsKey(target.color)) {
                 taken[target.color]!!.add(target)
@@ -95,6 +100,8 @@ class BoardImpl(
                 taken[target.color] = mutableListOf(target)
             }
             _takenPieces.update { taken }
+        } else {
+            updateMoveResult(MoveResult.SimpleMove)
         }
     }
 
@@ -120,6 +127,9 @@ class BoardImpl(
                     pieces = _piecesFlow.value,
                     pieceColor = king.color,
                 ).contains(king.position)
+                if (isChecked) {
+                    updateMoveResult(MoveResult.Check)
+                }
                 king.updateCheck(isChecked = isChecked)
             }
     }
@@ -137,7 +147,14 @@ class BoardImpl(
             .flatten()
             .isEmpty()
 
-        if (won) _winner = _player.value
+        if (won) {
+            updateMoveResult(MoveResult.Checkmate)
+            _winner = _player.value
+        }
+    }
+
+    private fun updateMoveResult(moveResult: MoveResult) {
+        _moveResult.value = moveResult
     }
 
     private fun legalMoves(piece: Piece): List<PiecePosition> {
@@ -206,6 +223,7 @@ class BoardImpl(
             king.position = king.position.copy(x = king.position.x - 2)
             rook.position = rook.position.copy(x = king.position.x + 1)
         }
+        updateMoveResult(MoveResult.Castling)
     }
     // endregion
 
