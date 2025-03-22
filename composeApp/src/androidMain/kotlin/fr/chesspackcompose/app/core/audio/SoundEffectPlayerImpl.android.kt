@@ -16,7 +16,6 @@ actual class SoundEffectPlayerImpl(
     override fun play(uri: String) {
         val mediaItem = mediaItems.getOrPut(uri) { MediaItem.fromUri(uri) }
         player.setMediaItem(mediaItem)
-        player.play()
     }
 
     override fun release() {
