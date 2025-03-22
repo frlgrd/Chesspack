@@ -2,6 +2,7 @@ package fr.chesspackcompose.app.game.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.Promotion
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 
 class GameViewModel(
     private val board: Board,
-    private val boardMapper: BoardMapper
+    private val boardMapper: BoardMapper,
+    private val soundEffectPlayer: SoundEffectPlayer
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameUIState())
     val state = _state.asStateFlow()

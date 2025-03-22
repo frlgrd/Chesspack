@@ -20,7 +20,9 @@ kotlin {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
     }
-
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
     listOf(
         iosX64(),
         iosArm64(),
