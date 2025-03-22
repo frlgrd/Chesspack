@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 class BoardImpl(
-    fen: Fen
+    private val fen: Fen
 ) : Board {
 
     private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
@@ -37,9 +37,7 @@ class BoardImpl(
     override val winner: PieceColor? get() = _winner
 
     init {
-        _piecesFlow.value = fen.toPieces().toMutableSet()
-        globalUpdate()
-        sendUpdate(pieces = _piecesFlow.value)
+        reset()
     }
 
     override fun move(from: PiecePosition, to: PiecePosition) {
@@ -86,6 +84,17 @@ class BoardImpl(
         pieces.add(promotedPiece)
         switchPlayer()
         sendUpdate(pieces = pieces)
+    }
+
+    override fun reset() {
+        _piecesFlow.value = fen.toPieces().toMutableSet()
+        _player.value = PieceColor.White
+        _takenPieces.value = mutableMapOf()
+        _moveResult.value = null
+        _winner = null
+        promotion = null
+        globalUpdate()
+        sendUpdate(pieces = _piecesFlow.value)
     }
 
     private fun movePiece(piece: Piece, to: PiecePosition, target: Piece?) {
