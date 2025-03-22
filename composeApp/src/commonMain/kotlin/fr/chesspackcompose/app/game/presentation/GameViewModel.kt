@@ -122,8 +122,10 @@ class GameViewModel(
     @OptIn(ExperimentalResourceApi::class)
     private fun playSoundEffect(moveResult: MoveResult?) {
         val soundEffectFileName = when (moveResult) {
-            MoveResult.Castling, MoveResult.SimpleMove -> "files/move.mp3"
-            MoveResult.Check, MoveResult.Capture -> "files/capture.mp3"
+            MoveResult.Castling -> "files/castle.mp3"
+            MoveResult.SimpleMove -> "files/move.mp3"
+            MoveResult.Check -> "files/check.mp3"
+            MoveResult.Capture -> "files/capture.mp3"
             MoveResult.Checkmate -> "files/notify.mp3"
             null -> null
         } ?: return
