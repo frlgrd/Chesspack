@@ -8,4 +8,5 @@ sealed interface GameUiEvent {
     data class PieceDragging(val at: PiecePosition) : GameUiEvent
     data object DragCanceled : GameUiEvent
     data class OnPromotion(val promotionItem: PromotionItem) : GameUiEvent
+    data object ResetRequested : GameUiEvent
 }

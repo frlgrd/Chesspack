@@ -42,7 +42,7 @@ class BoardMapper {
                     position = position,
                     squareColor = squareColor(board = board, piece = piece, position = position),
                     moveEnabled = board.winner == null && player == piece?.color,
-                    pieceInfo = piece.toPieceUiInfo(board),
+                    pieceInfo = piece.toPieceUiInfo(),
                     isChecked = board.winner == null && piece is King && piece.isChecked
                 )
                 result.add(cellUIModel)
@@ -105,11 +105,11 @@ class BoardMapper {
         )
     }
 
-    private fun Piece?.toPieceUiInfo(board: Board): PieceInfo? {
+    private fun Piece?.toPieceUiInfo(): PieceInfo? {
         this ?: return null
         return PieceInfo(
             drawableResource = drawableResource,
-            legalMoves = board.legalMoves(position)
+            legalMoves = legalMoves
         )
     }
 

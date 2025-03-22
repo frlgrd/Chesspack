@@ -5,5 +5,6 @@ data class GameUIState(
     val boardRotation: Float = 0F,
     val withesGameInfo: GameInfo? = null,
     val blacksGameInfo: GameInfo? = null,
-    val promotionUiModel: PromotionUiModel? = null
+    val promotionUiModel: PromotionUiModel? = null,
+    val canReset: Boolean = false
 )

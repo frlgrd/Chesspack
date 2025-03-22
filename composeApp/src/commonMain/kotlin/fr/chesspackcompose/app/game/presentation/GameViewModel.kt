@@ -76,6 +76,7 @@ class GameViewModel(
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
                     board.move(from = event.cell.position, to = event.at)
+                    _state.update { it.copy(canReset = true) }
                     if (board.winner == null && board.promotion == null) {
                         delay(300)
                         rotateBoard()
@@ -104,6 +105,11 @@ class GameViewModel(
                 color = event.promotionItem.color,
                 type = event.promotionItem.type
             )
+
+            is GameUiEvent.ResetRequested -> {
+                board.reset()
+                _state.update { it.copy(boardRotation = 0F, canReset = false) }
+            }
         }
     }
 
