@@ -126,7 +126,7 @@ class GameViewModel(
             MoveResult.SimpleMove -> "files/move.mp3"
             MoveResult.Check -> "files/check.mp3"
             MoveResult.Capture -> "files/capture.mp3"
-            MoveResult.Checkmate -> "files/notify.mp3"
+            MoveResult.Checkmate -> "files/checkmate.mp3"
             null -> null
         } ?: return
 
