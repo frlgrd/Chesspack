@@ -5,7 +5,7 @@ actual class SoundEffectPlayerImpl : SoundEffectPlayer {
         TODO("Not yet implemented")
     }
 
-    override fun clear() {
+    override fun release() {
         TODO("Not yet implemented")
     }
 }
