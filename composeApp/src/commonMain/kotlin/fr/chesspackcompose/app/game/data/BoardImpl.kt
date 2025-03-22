@@ -352,7 +352,7 @@ class BoardImpl(
     ): PiecePosition? {
         val x = piece.position.x + xDirection
         val y = piece.position.y + yDirection
-        if (x == -1 || y == -1 || x == 8 || y == 8) return null
+        if (x < 0 || y < 0 || x > 7 || y > 7) return null
         val pieceAt = pieceAt(pieces = pieces, x = x, y = y)
         if (pieceAt != null && pieceAt.color == piece.color) return null
         return PiecePosition(x = x, y = y)
