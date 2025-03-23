@@ -1,5 +1,6 @@
 package fr.chesspackcompose.app.game.presentation
 
+import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 
 sealed interface GameUiEvent {
@@ -9,4 +10,5 @@ sealed interface GameUiEvent {
     data object DragCanceled : GameUiEvent
     data class OnPromotion(val promotionItem: PromotionItem) : GameUiEvent
     data object ResetRequested : GameUiEvent
+    data class TimerFinished(val pieceColor: PieceColor) : GameUiEvent
 }

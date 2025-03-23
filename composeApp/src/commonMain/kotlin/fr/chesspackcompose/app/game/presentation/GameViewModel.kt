@@ -48,7 +48,8 @@ class GameViewModel(
                     allPieces = pieces,
                     takenPieces = takenPieces
                 ),
-                promotionUiModel = boardMapper.mapPromotion(board.promotion)
+                promotionUiModel = boardMapper.mapPromotion(board.promotion),
+                currentPlayer = player
             )
             checkPromotionConsumption(board.promotion, player)
             playSoundEffect(moveResult)
@@ -110,6 +111,8 @@ class GameViewModel(
                 board.reset()
                 _state.update { it.copy(boardRotation = 0F, canReset = false) }
             }
+
+            is GameUiEvent.TimerFinished -> {}
         }
     }
 

@@ -2,17 +2,19 @@ package fr.chesspackcompose.app.game.presentation.ui
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -43,10 +45,23 @@ fun BoardUi(
     if (state.promotionUiModel != null) {
         PromotionDialog(promotion = state.promotionUiModel, onEvent = onEvent)
     }
-    Box(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center
+    ) {
+        GameInfoUi(
+            gameInfo = state.withesGameInfo,
+            currentPlayer = state.currentPlayer,
+            onEvent = onEvent
+        )
+        GameInfoUi(
+            gameInfo = state.blacksGameInfo,
+            currentPlayer = state.currentPlayer,
+            onEvent = onEvent
+        )
+        Spacer(Modifier.height(50.dp))
         Box(
             modifier = Modifier
-                .align(Alignment.Center)
                 .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
                 .aspectRatio(1F)
                 .graphicsLayer { rotationZ = currentRotation }
@@ -59,10 +74,6 @@ fun BoardUi(
                     onEvent = onEvent
                 )
             }
-        }
-        Column(modifier = Modifier.align(Alignment.BottomStart)) {
-            GameInfoUi(gameInfo = state.withesGameInfo)
-            GameInfoUi(gameInfo = state.blacksGameInfo)
         }
     }
 }

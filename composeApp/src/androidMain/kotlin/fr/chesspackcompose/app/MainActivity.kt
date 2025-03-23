@@ -10,7 +10,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import chesspackcompose.composeapp.generated.resources.Res
 import chesspackcompose.composeapp.generated.resources.piece_pawn_side_black
 import chesspackcompose.composeapp.generated.resources.piece_queen_side_black
-import fr.chesspackcompose.app.game.presentation.AdvantageInfo
+import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.presentation.TakenPiece
 import fr.chesspackcompose.app.game.presentation.ui.GameInfoUi
 
@@ -33,7 +33,11 @@ fun AppAndroidPreview() {
                 Res.drawable.piece_pawn_side_black to TakenPiece(order = 1, count = 3),
                 Res.drawable.piece_queen_side_black to TakenPiece(order = 3, count = 1)
             ),
-            advantage = AdvantageInfo("+4", Color.White),
-        )
+            pieceColor = PieceColor.White,
+            textColor = Color.White,
+            advantageLabel = "+10"
+        ),
+        currentPlayer = null,
+        onEvent = {}
     )
 }

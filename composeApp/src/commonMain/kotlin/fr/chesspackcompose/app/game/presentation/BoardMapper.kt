@@ -56,15 +56,15 @@ class BoardMapper {
         allPieces: Set<Piece>,
         takenPieces: Map<PieceColor, List<Piece>>
     ): GameInfo {
-        val advantage = buildAdvantageInfo(color = color, allPieces = allPieces)
-        val pieces = takenPieces[color.switch()] ?: return GameInfo(
+        val advantage = buildAdvantageLabel(color = color, allPieces = allPieces)
+        val uiColor = if (color == PieceColor.White) Color.White else Color.Black
+        val gameInfo = GameInfo(
             takenPieces = emptyMap(),
-            advantage = advantage
+            pieceColor = color,
+            textColor = uiColor,
+            advantageLabel = advantage
         )
-        if (pieces.isEmpty()) return GameInfo(
-            takenPieces = emptyMap(),
-            advantage = advantage
-        )
+        val pieces = takenPieces[color.switch()] ?: return gameInfo
         val piecesMap = mutableMapOf<DrawableResource, TakenPiece>()
         pieces.groupBy { it::class }.map {
             val piece = it.value.first()
@@ -76,7 +76,7 @@ class BoardMapper {
                 )
             )
         }
-        return GameInfo(takenPieces = piecesMap, advantage = advantage)
+        return gameInfo.copy(takenPieces = piecesMap)
     }
 
     fun mapPromotion(promotion: Promotion?): PromotionUiModel? {
@@ -91,18 +91,14 @@ class BoardMapper {
         }
     }
 
-    private fun buildAdvantageInfo(
+    private fun buildAdvantageLabel(
         color: PieceColor,
         allPieces: Set<Piece>,
-    ): AdvantageInfo {
+    ): String {
         val colorScore = allPieces.filter { it.color == color }.sumOf { it.power }
         val otherColorScore = allPieces.filter { it.color == color.switch() }.sumOf { it.power }
         val label = if (colorScore > otherColorScore) "+ ${colorScore - otherColorScore}" else ""
-        val uiColor = if (color == PieceColor.White) Color.White else Color.Black
-        return AdvantageInfo(
-            label = label,
-            color = uiColor
-        )
+        return label
     }
 
     private fun Piece?.toPieceUiInfo(): PieceInfo? {

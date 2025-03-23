@@ -39,12 +39,9 @@ data class PieceInfo(
 
 data class GameInfo(
     val takenPieces: Map<DrawableResource, TakenPiece>,
-    val advantage: AdvantageInfo
-)
-
-data class AdvantageInfo(
-    val label: String,
-    val color: Color
+    val pieceColor: PieceColor,
+    val textColor: Color,
+    val advantageLabel: String
 )
 
 data class TakenPiece(
