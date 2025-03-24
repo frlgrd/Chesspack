@@ -89,11 +89,11 @@ class BoardImpl(
     override fun reset() {
         _piecesFlow.value = fen.toPieces().toMutableSet()
         _player.value = PieceColor.White
-        globalUpdate()
-        _takenPieces.value = mutableMapOf()
+        _takenPieces.value = emptyMap()
         _moveResult.value = null
         _winner = null
         promotion = null
+        globalUpdate()
         sendUpdate(pieces = _piecesFlow.value)
     }
 

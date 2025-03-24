@@ -58,7 +58,7 @@ private fun TakenPiecesGroup(
     Box {
         repeat(takenPiece.count) { index ->
             Image(
-                modifier = Modifier.padding(start = 12.dp.times(index)).size(40.dp),
+                modifier = Modifier.padding(start = 12.dp.times(index)).size(30.dp),
                 painter = painterResource(image),
                 contentDescription = null
             )

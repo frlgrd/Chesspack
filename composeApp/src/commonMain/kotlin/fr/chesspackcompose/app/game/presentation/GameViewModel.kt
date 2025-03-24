@@ -49,7 +49,7 @@ class GameViewModel(
                     takenPieces = takenPieces
                 ),
                 promotionUiModel = boardMapper.mapPromotion(board.promotion),
-                currentPlayer = player
+                currentPlayer = if (board.winner == null) player else null
             )
             checkPromotionConsumption(board.promotion, player)
             playSoundEffect(moveResult)
