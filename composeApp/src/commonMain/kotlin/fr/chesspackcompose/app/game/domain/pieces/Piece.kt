@@ -13,8 +13,9 @@ sealed class Piece(
     var moved = false
         private set
 
-    fun updateLegalMoves(moves: List<PiecePosition>) {
+    fun updateLegalMoves(moves: List<PiecePosition>): Piece {
         legalMoves = moves
+        return this
     }
 
     fun markAsMoved() {

@@ -14,7 +14,7 @@ import chesspackcompose.composeapp.generated.resources.piece_queen_side_black
 import chesspackcompose.composeapp.generated.resources.piece_queen_side_white
 import chesspackcompose.composeapp.generated.resources.piece_rook_side_black
 import chesspackcompose.composeapp.generated.resources.piece_rook_side_white
-import fr.chesspackcompose.app.game.domain.Board
+import fr.chesspackcompose.app.game.domain.BoardState
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
@@ -29,21 +29,23 @@ import org.jetbrains.compose.resources.DrawableResource
 
 class BoardMapper {
     fun mapPieces(
-        board: Board,
-        pieces: Set<Piece>,
-        player: PieceColor
+        boardState: BoardState
     ): List<CellUIModel> {
         val result = mutableListOf<CellUIModel>()
         (0..7).forEach { x ->
             (0..7).forEach { y ->
                 val position = PiecePosition(x = x, y = y)
-                val piece = pieces.find { it.position == position }
+                val piece = boardState.pieces.find { it.position == position }
                 val cellUIModel = CellUIModel(
                     position = position,
-                    squareColor = squareColor(board = board, piece = piece, position = position),
-                    moveEnabled = board.winner == null && player == piece?.color,
+                    squareColor = squareColor(
+                        boardState = boardState,
+                        piece = piece,
+                        position = position
+                    ),
+                    moveEnabled = boardState.winner == null && boardState.currentPlayer == piece?.color,
                     pieceInfo = piece.toPieceUiInfo(),
-                    isChecked = board.winner == null && piece is King && piece.isChecked
+                    isChecked = boardState.winner == null && piece is King && piece.isChecked
                 )
                 result.add(cellUIModel)
             }
@@ -84,9 +86,9 @@ class BoardMapper {
         return PromotionUiModel(items = promotion.pawn.promotionItem)
     }
 
-    private fun squareColor(board: Board, piece: Piece?, position: PiecePosition): Color {
+    private fun squareColor(boardState: BoardState, piece: Piece?, position: PiecePosition): Color {
         return when {
-            board.winner != null && piece is King -> if (piece.color == board.winner) winnerColor else looserColor
+            boardState.winner != null && piece is King -> if (piece.color == boardState.winner) winnerColor else looserColor
             else -> if ((position.x + position.y) % 2 == 0) darkColor else lightColor
         }
     }

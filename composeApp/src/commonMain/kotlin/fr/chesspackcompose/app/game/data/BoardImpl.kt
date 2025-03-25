@@ -1,10 +1,11 @@
 package fr.chesspackcompose.app.game.data
 
 import fr.chesspackcompose.app.game.domain.Board
-import fr.chesspackcompose.app.game.domain.MoveResult
+import fr.chesspackcompose.app.game.domain.BoardState
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
+import fr.chesspackcompose.app.game.domain.SoundEffect
 import fr.chesspackcompose.app.game.domain.pieces.Bishop
 import fr.chesspackcompose.app.game.domain.pieces.King
 import fr.chesspackcompose.app.game.domain.pieces.Knight
@@ -21,43 +22,59 @@ class BoardImpl(
     private val fen: Fen
 ) : Board {
 
-    private val _piecesFlow: MutableStateFlow<MutableSet<Piece>> = MutableStateFlow(mutableSetOf())
-    private val _player: MutableStateFlow<PieceColor> = MutableStateFlow(PieceColor.White)
-    private val _takenPieces: MutableStateFlow<Map<PieceColor, MutableList<Piece>>> =
-        MutableStateFlow(mutableMapOf())
-    private val _moveResult: MutableStateFlow<MoveResult?> = MutableStateFlow(null)
-    private var _winner: PieceColor? = null
-
-    override val piecesFLow: Flow<Set<Piece>> get() = _piecesFlow.asStateFlow()
-    override val playerFlow: Flow<PieceColor> get() = _player.asStateFlow()
-    override val takenPiecesFlow: Flow<Map<PieceColor, List<Piece>>> get() = _takenPieces
-    override val moveResult: Flow<MoveResult?>
-        get() = _moveResult
-    override var promotion: Promotion? = null
-    override val winner: PieceColor? get() = _winner
+    private val _state = MutableStateFlow(BoardState())
+    override val state: Flow<BoardState> = _state.asStateFlow()
 
     init {
         reset()
     }
 
-    override fun move(from: PiecePosition, to: PiecePosition) {
-        val pieces = _piecesFlow.value
-        val piece = pieces.find { it.position == from } ?: return
+    override fun move(from: PiecePosition, to: PiecePosition): BoardState {
+        var currentState = _state.value
+        val pieces = currentState.pieces
+        val piece = pieces.find { it.position == from } ?: return currentState
         val target = pieces.find { it.position == to }
-        if (target?.color == piece.color) {
-            castling(king = piece, rook = target)
+        currentState = if (target?.color == piece.color) {
+            castling(boardState = currentState, king = piece, rook = target)
         } else {
-            movePiece(piece = piece, to = to, target = target)
+            movePiece(boardState = currentState, piece = piece, to = to, target = target)
         }
         piece.markAsMoved()
-        globalUpdate()
+        currentState = globalUpdate(currentState)
         if (piece is Pawn && canBePromoted(piece)) {
-            promotion = Promotion(piece)
-            sendUpdate(pieces = pieces)
-            return
+            currentState =
+                currentState.copy(promotion = Promotion(pawn = piece), soundEffect = null)
+            _state.update { currentState }
+            return currentState
         }
-        switchPlayer()
-        sendUpdate(pieces = pieces)
+        _state.update {
+            currentState.copy(
+                pieces = pieces,
+                currentPlayer = it.currentPlayer.switch()
+            )
+        }
+        return currentState
+    }
+
+    private fun movePiece(
+        boardState: BoardState,
+        piece: Piece,
+        to: PiecePosition,
+        target: Piece?
+    ): BoardState {
+        boardState.pieces.removeAll { it.position == to }
+        piece.position = to
+        return if (target != null) {
+            val takenPieces = boardState.takenPieces.toMutableMap()
+            if (takenPieces.containsKey(target.color)) {
+                takenPieces[target.color]!!.add(target)
+            } else {
+                takenPieces[target.color] = mutableListOf(target)
+            }
+            boardState.copy(takenPieces = takenPieces, soundEffect = SoundEffect.Capture)
+        } else {
+            boardState.copy(soundEffect = SoundEffect.SimpleMove)
+        }
     }
 
     override fun pieceAt(pieces: Set<Piece>, x: Int, y: Int): Piece? {
@@ -65,7 +82,7 @@ class BoardImpl(
     }
 
     override fun legalMoves(position: PiecePosition): List<PiecePosition> {
-        return _piecesFlow.value.find { it.position == position }?.legalMoves.orEmpty()
+        return _state.value.pieces.find { it.position == position }?.legalMoves.orEmpty()
     }
 
     override fun promote(
@@ -73,7 +90,7 @@ class BoardImpl(
         color: PieceColor,
         type: Promotion.Type
     ) {
-        val pieces = _piecesFlow.value
+        val pieces = _state.value.pieces
         pieces.removeAll { it.position == position }
         val promotedPiece = when (type) {
             Promotion.Type.QUEEN -> Queen(position = position, color = color)
@@ -82,93 +99,82 @@ class BoardImpl(
             Promotion.Type.KNIGHT -> Knight(position = position, color = color)
         }
         pieces.add(promotedPiece)
-        switchPlayer()
-        sendUpdate(pieces = pieces)
+        _state.update {
+            it.copy(
+                pieces = pieces,
+                currentPlayer = it.currentPlayer.switch(),
+                soundEffect = SoundEffect.SimpleMove
+            )
+        }
+    }
+
+    override fun promotionConsumed() {
+        _state.update { it.copy(promotion = null) }
     }
 
     override fun reset() {
-        _piecesFlow.value = fen.toPieces().toMutableSet()
-        _player.value = PieceColor.White
-        _takenPieces.value = emptyMap()
-        _moveResult.value = null
-        _winner = null
-        promotion = null
-        globalUpdate()
-        sendUpdate(pieces = _piecesFlow.value)
-    }
-
-    private fun movePiece(piece: Piece, to: PiecePosition, target: Piece?) {
-        _piecesFlow.value.removeAll { it.position == to }
-        piece.position = to
-        if (target != null) {
-            updateMoveResult(MoveResult.Capture)
-            val taken = _takenPieces.value.toMutableMap()
-            if (taken.containsKey(target.color)) {
-                taken[target.color]!!.add(target)
-            } else {
-                taken[target.color] = mutableListOf(target)
-            }
-            _takenPieces.update { taken }
-        } else {
-            updateMoveResult(MoveResult.SimpleMove)
+        _state.value = BoardState(pieces = fen.toPieces().toMutableSet())
+        _state.update {
+            it.copy(pieces = it.pieces.map { piece ->
+                piece.updateLegalMoves(legalMoves(piece))
+            }.toMutableSet())
         }
     }
 
-    private fun sendUpdate(pieces: Set<Piece>) {
-        _piecesFlow.update { pieces.toMutableSet() }
+    private fun globalUpdate(boardState: BoardState): BoardState {
+        val checkingUpdate = updateCheckedKings(boardState)
+        val legalMoveUpdate = updateLegalMoves(checkingUpdate)
+        return updateWinner(legalMoveUpdate)
     }
 
-    private fun switchPlayer() {
-        _player.value = _player.value.switch()
-    }
-
-    private fun globalUpdate() {
-        updateCheckedKings()
-        updateLegalMoves()
-        updateWinner()
-    }
-
-    private fun updateCheckedKings() {
-        _piecesFlow.value
-            .filterIsInstance<King>()
-            .map { king ->
-                val isChecked = opponentsMoves(
-                    pieces = _piecesFlow.value,
-                    pieceColor = king.color,
-                ).contains(king.position)
-                if (isChecked) {
-                    updateMoveResult(MoveResult.Check)
+    private fun updateCheckedKings(boardState: BoardState): BoardState {
+        var isChecked = false
+        val pieces = boardState.pieces.map { piece ->
+            if (piece is King) {
+                val opponentsMoves = opponentsMoves(
+                    pieces = boardState.pieces,
+                    pieceColor = piece.color
+                )
+                if (opponentsMoves.contains(piece.position)) {
+                    isChecked = true
                 }
-                king.updateCheck(isChecked = isChecked)
+                piece.updateCheck(isChecked = isChecked)
             }
-    }
-
-    private fun updateLegalMoves() {
-        _piecesFlow.value.forEach { piece ->
-            piece.updateLegalMoves(moves = legalMoves(piece = piece))
+            piece
         }
+        return boardState.copy(
+            pieces = pieces.toMutableSet(),
+            soundEffect = if (isChecked) SoundEffect.Check else boardState.soundEffect
+        )
     }
 
-    private fun updateWinner() {
-        val won = _piecesFlow.value
-            .filter { it.color != _player.value }
+    private fun updateLegalMoves(boardState: BoardState): BoardState {
+        return boardState.copy(
+            pieces = boardState.pieces
+                .map { it.updateLegalMoves(moves = legalMoves(it)) }
+                .toMutableSet()
+        )
+    }
+
+    private fun updateWinner(boardState: BoardState): BoardState {
+        val currentPlayerWon = boardState.pieces
+            .filter { it.color == boardState.currentPlayer.switch() }
             .map(Piece::legalMoves)
             .flatten()
             .isEmpty()
-
-        if (won) {
-            updateMoveResult(MoveResult.Checkmate)
-            _winner = _player.value
+        return if (currentPlayerWon) {
+            boardState.copy(
+                winner = boardState.currentPlayer,
+                soundEffect = SoundEffect.Checkmate
+            )
+        } else {
+            boardState
         }
-    }
-
-    private fun updateMoveResult(moveResult: MoveResult) {
-        _moveResult.value = moveResult
     }
 
     private fun legalMoves(piece: Piece): List<PiecePosition> {
         return pseudoLegalMoves(
-            pieces = _piecesFlow.value,
+            pieces = _state.value.pieces,
             piece = piece
         ).filterNot { isIllegalMove(piece = piece, position = it) }
     }
@@ -177,7 +183,7 @@ class BoardImpl(
         piece: Piece,
         position: PiecePosition,
     ): Boolean {
-        val piecesAfterMove = _piecesFlow.value.map(Piece::copyPiece).toMutableSet()
+        val piecesAfterMove = _state.value.pieces.map(Piece::copyPiece).toMutableSet()
         piecesAfterMove.removeAll { it.position == position }
         val updatedPiece = piecesAfterMove.find {
             it.position == piece.position
@@ -215,16 +221,15 @@ class BoardImpl(
             king.position.x - 1 downTo rook.position.x + 1 // pieces between king and west rook
         }
         val piecesBetween =
-            range.mapNotNull { pieceAt(pieces = _piecesFlow.value, x = it, y = king.position.y) }
+            range.mapNotNull { pieceAt(pieces = _state.value.pieces, x = it, y = king.position.y) }
         return piecesBetween.isEmpty()
     }
 
     private fun castling(
+        boardState: BoardState,
         king: Piece,
         rook: Piece
-    ) {
-        if (king !is King) return // Should not happen
-        if (rook !is Rook) return // Should not happen
+    ): BoardState {
         if (king.position.x < rook.position.x) {
             king.position = king.position.copy(x = king.position.x + 2)
             rook.position = rook.position.copy(x = king.position.x - 1)
@@ -232,7 +237,7 @@ class BoardImpl(
             king.position = king.position.copy(x = king.position.x - 2)
             rook.position = rook.position.copy(x = king.position.x + 1)
         }
-        updateMoveResult(MoveResult.Castling)
+        return boardState.copy(soundEffect = SoundEffect.Castling)
     }
     // endregion
 

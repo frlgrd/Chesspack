@@ -5,14 +5,14 @@ import androidx.lifecycle.viewModelScope
 import chesspackcompose.composeapp.generated.resources.Res
 import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
-import fr.chesspackcompose.app.game.domain.MoveResult
+import fr.chesspackcompose.app.game.domain.BoardState
 import fr.chesspackcompose.app.game.domain.PieceColor
-import fr.chesspackcompose.app.game.domain.Promotion
+import fr.chesspackcompose.app.game.domain.SoundEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -26,33 +26,29 @@ class GameViewModel(
     val state = _state.asStateFlow()
 
     init {
-        combine(
-            board.piecesFLow,
-            board.playerFlow,
-            board.takenPiecesFlow,
-            board.moveResult,
-        ) { pieces, player, takenPieces, moveResult ->
-            _state.value = _state.value.copy(
-                cells = boardMapper.mapPieces(
-                    board = board,
-                    pieces = pieces,
-                    player = player
-                ),
-                withesGameInfo = boardMapper.mapGameInfo(
-                    color = PieceColor.White,
-                    allPieces = pieces,
-                    takenPieces = takenPieces
-                ),
-                blacksGameInfo = boardMapper.mapGameInfo(
-                    color = PieceColor.Black,
-                    allPieces = pieces,
-                    takenPieces = takenPieces
-                ),
-                promotionUiModel = boardMapper.mapPromotion(board.promotion),
-                currentPlayer = if (board.winner == null) player else null
-            )
-            checkPromotionConsumption(board.promotion, player)
-            playSoundEffect(moveResult)
+        board.state.onEach { boardState ->
+            println(boardState.pieces.map { it.legalMoves })
+            _state.update {
+                val cells = boardMapper.mapPieces(boardState)
+                it.copy(
+                    cells = cells,
+                    withesGameInfo = boardMapper.mapGameInfo(
+                        color = PieceColor.White,
+                        allPieces = boardState.pieces,
+                        takenPieces = boardState.takenPieces
+                    ),
+                    blacksGameInfo = boardMapper.mapGameInfo(
+                        color = PieceColor.Black,
+                        allPieces = boardState.pieces,
+                        takenPieces = boardState.takenPieces
+                    ),
+                    promotionUiModel = boardMapper.mapPromotion(boardState.promotion),
+                    currentPlayer = if (boardState.winner == null) boardState.currentPlayer else null,
+                    winner = boardState.winner
+                )
+            }
+            checkPromotionConsumption(boardState = boardState)
+            playSoundEffect(soundEffect = boardState.soundEffect)
         }.launchIn(viewModelScope)
     }
 
@@ -76,9 +72,9 @@ class GameViewModel(
 
             is GameUiEvent.PieceDropped -> {
                 viewModelScope.launch {
-                    board.move(from = event.cell.position, to = event.at)
+                    val state = board.move(from = event.cell.position, to = event.at)
                     _state.update { it.copy(canReset = true) }
-                    if (board.winner == null && board.promotion == null) {
+                    if (state.winner == null && state.promotion == null) {
                         delay(300)
                         rotateBoard()
                     }
@@ -116,11 +112,11 @@ class GameViewModel(
         }
     }
 
-    private fun checkPromotionConsumption(promotion: Promotion?, player: PieceColor) {
-        promotion ?: return
-        if (promotion.pawn.color == player) return
-        board.promotion = null
+    private fun checkPromotionConsumption(boardState: BoardState) {
+        boardState.promotion ?: return
+        if (boardState.promotion.pawn.color == boardState.currentPlayer) return
         _state.update { it.copy(promotionUiModel = null) }
+        board.promotionConsumed()
         rotateBoard()
     }
 
@@ -129,17 +125,15 @@ class GameViewModel(
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private fun playSoundEffect(moveResult: MoveResult?) {
-        val soundEffectFileName = when (moveResult) {
-            MoveResult.Castling -> "castle"
-            MoveResult.SimpleMove -> "move"
-            MoveResult.Check -> "check"
-            MoveResult.Capture -> "capture"
-            MoveResult.Checkmate -> "checkmate"
-            null -> null
-        } ?: return
-
-        val uri = Res.getUri("files/${soundEffectFileName}.mp3")
-        soundEffectPlayer.play(uri = uri)
+    private fun playSoundEffect(soundEffect: SoundEffect?) {
+        soundEffect ?: return
+        val effect = when (soundEffect) {
+            SoundEffect.Castling -> "castle"
+            SoundEffect.SimpleMove -> "move"
+            SoundEffect.Check -> "check"
+            SoundEffect.Capture -> "capture"
+            SoundEffect.Checkmate -> "checkmate"
+        }
+        soundEffectPlayer.play(uri = Res.getUri("files/${effect}.mp3"))
     }
 }
