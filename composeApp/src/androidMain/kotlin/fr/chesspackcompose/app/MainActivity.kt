@@ -37,7 +37,8 @@ fun AppAndroidPreview() {
             textColor = Color.White,
             advantageLabel = "+10"
         ),
-        currentPlayer = null,
+        currentPlayer = PieceColor.White,
+        gameFinished = false,
         onEvent = {}
     )
 }

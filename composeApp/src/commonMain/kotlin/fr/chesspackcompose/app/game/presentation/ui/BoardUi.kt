@@ -52,11 +52,13 @@ fun BoardUi(
         GameInfoUi(
             gameInfo = state.withesGameInfo,
             currentPlayer = state.currentPlayer,
+            gameFinished = state.gameFinished,
             onEvent = onEvent
         )
         GameInfoUi(
             gameInfo = state.blacksGameInfo,
             currentPlayer = state.currentPlayer,
+            gameFinished = state.gameFinished,
             onEvent = onEvent
         )
         Spacer(Modifier.height(50.dp))

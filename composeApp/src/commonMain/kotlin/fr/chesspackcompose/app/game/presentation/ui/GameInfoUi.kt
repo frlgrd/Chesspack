@@ -24,7 +24,8 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun GameInfoUi(
     gameInfo: GameInfo?,
-    currentPlayer: PieceColor?,
+    currentPlayer: PieceColor,
+    gameFinished: Boolean,
     onEvent: (GameUiEvent) -> Unit
 ) {
     Row(
@@ -45,7 +46,12 @@ fun GameInfoUi(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            Timer(gameInfo = gameInfo, currentPlayer = currentPlayer, onEvent = onEvent)
+            Timer(
+                gameInfo = gameInfo,
+                currentPlayer = currentPlayer,
+                gameFinished = gameFinished,
+                onEvent = onEvent
+            )
         }
     }
 }

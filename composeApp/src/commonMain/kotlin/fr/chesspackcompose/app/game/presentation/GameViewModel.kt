@@ -29,9 +29,8 @@ class GameViewModel(
         board.state.onEach { boardState ->
             println(boardState.pieces.map { it.legalMoves })
             _state.update {
-                val cells = boardMapper.mapPieces(boardState)
                 it.copy(
-                    cells = cells,
+                    cells = boardMapper.mapPieces(boardState),
                     withesGameInfo = boardMapper.mapGameInfo(
                         color = PieceColor.White,
                         allPieces = boardState.pieces,
@@ -43,7 +42,7 @@ class GameViewModel(
                         takenPieces = boardState.takenPieces
                     ),
                     promotionUiModel = boardMapper.mapPromotion(boardState.promotion),
-                    currentPlayer = if (boardState.winner == null) boardState.currentPlayer else null,
+                    currentPlayer = boardState.currentPlayer,
                     winner = boardState.winner
                 )
             }

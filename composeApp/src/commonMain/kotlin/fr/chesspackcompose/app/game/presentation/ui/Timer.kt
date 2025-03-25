@@ -27,7 +27,8 @@ private val redBackgroundColor = Color.Red
 @Composable
 fun Timer(
     gameInfo: GameInfo,
-    currentPlayer: PieceColor?,
+    currentPlayer: PieceColor,
+    gameFinished: Boolean,
     onEvent: (GameUiEvent) -> Unit
 ) {
     var leftTime by remember { mutableStateOf(10 * 60 * 1000) }
@@ -39,8 +40,8 @@ fun Timer(
             else -> defaultBackgroundColor
         }
     }
-    LaunchedEffect(currentPlayer) {
-        while (currentPlayer == gameInfo.pieceColor && leftTime > 0) {
+    LaunchedEffect(currentPlayer, gameFinished) {
+        while (currentPlayer == gameInfo.pieceColor && leftTime > 0 && !gameFinished) {
             delay(step.toLong())
             leftTime -= step
             if (leftTime < 10 * 1000 && step == 1000) {

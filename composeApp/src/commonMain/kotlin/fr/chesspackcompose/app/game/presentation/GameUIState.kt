@@ -9,6 +9,8 @@ data class GameUIState(
     val blacksGameInfo: GameInfo? = null,
     val promotionUiModel: PromotionUiModel? = null,
     val canReset: Boolean = false,
-    val currentPlayer: PieceColor? = null,
+    val currentPlayer: PieceColor = PieceColor.White,
     val winner: PieceColor? = null
-)
+) {
+    val gameFinished: Boolean get() = winner != null
+}
