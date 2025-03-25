@@ -128,15 +128,16 @@ class BoardImpl(
     }
 
     private fun updateCheckedKings(boardState: BoardState): BoardState {
-        var isChecked = false
+        var hasCheckedKing = false
         val pieces = boardState.pieces.map { piece ->
             if (piece is King) {
                 val opponentsMoves = opponentsMoves(
                     pieces = boardState.pieces,
                     pieceColor = piece.color
                 )
-                if (opponentsMoves.contains(piece.position)) {
-                    isChecked = true
+                val isChecked = opponentsMoves.contains(piece.position)
+                if (isChecked) {
+                    hasCheckedKing = true
                 }
                 piece.updateCheck(isChecked = isChecked)
             }
@@ -144,7 +145,7 @@ class BoardImpl(
         }
         return boardState.copy(
             pieces = pieces.toMutableSet(),
-            soundEffect = if (isChecked) SoundEffect.Check else boardState.soundEffect
+            soundEffect = if (hasCheckedKing) SoundEffect.Check else boardState.soundEffect
         )
     }
 
