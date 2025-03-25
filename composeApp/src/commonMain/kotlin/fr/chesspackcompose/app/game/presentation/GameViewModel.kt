@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import chesspackcompose.composeapp.generated.resources.Res
 import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
-import fr.chesspackcompose.app.game.domain.BoardState
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.SoundEffect
 import kotlinx.coroutines.delay
@@ -14,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 
 class GameViewModel(
@@ -46,8 +44,10 @@ class GameViewModel(
                     winner = boardState.winner
                 )
             }
-            checkPromotionConsumption(boardState = boardState)
             playSoundEffect(soundEffect = boardState.soundEffect)
+            if (boardState.playerSwiched) {
+                playerSwitched()
+            }
         }.launchIn(viewModelScope)
     }
 
@@ -69,16 +69,7 @@ class GameViewModel(
                 })
             }
 
-            is GameUiEvent.PieceDropped -> {
-                viewModelScope.launch {
-                    val state = board.move(from = event.cell.position, to = event.at)
-                    _state.update { it.copy(canReset = true) }
-                    if (state.winner == null && state.promotion == null) {
-                        delay(300)
-                        rotateBoard()
-                    }
-                }
-            }
+            is GameUiEvent.PieceDropped -> board.move(from = event.cell.position, to = event.at)
 
             is GameUiEvent.DragCanceled -> _state.update {
                 it.copy(cells = it.cells.map { cell ->
@@ -111,13 +102,19 @@ class GameViewModel(
         }
     }
 
-    private fun checkPromotionConsumption(boardState: BoardState) {
-        boardState.promotion ?: return
-        if (boardState.promotion.pawn.color == boardState.currentPlayer) return
-        _state.update { it.copy(promotionUiModel = null) }
-        board.promotionConsumed()
+    private suspend fun playerSwitched() {
+        _state.update { it.copy(canReset = true) }
+        delay(300)
         rotateBoard()
     }
+    /*
+        private fun checkPromotionConsumption(boardState: BoardState) {
+            boardState.promotion ?: return
+            if (boardState.promotion.pawn.color == boardState.currentPlayer) return
+            _state.update { it.copy(promotionUiModel = null) }
+            board.promotionConsumed()
+            rotateBoard()
+        }*/
 
     private fun rotateBoard() {
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }

@@ -29,31 +29,31 @@ class BoardImpl(
         reset()
     }
 
-    override fun move(from: PiecePosition, to: PiecePosition): BoardState {
-        var currentState = _state.value
-        val pieces = currentState.pieces
-        val piece = pieces.find { it.position == from } ?: return currentState
+    override fun move(from: PiecePosition, to: PiecePosition) {
+        var state = _state.value
+        val pieces = state.pieces
+        val piece = pieces.find { it.position == from } ?: return
         val target = pieces.find { it.position == to }
-        currentState = if (target?.color == piece.color) {
-            castling(boardState = currentState, king = piece, rook = target)
+        state = if (target?.color == piece.color) {
+            castling(boardState = state, king = piece, rook = target)
         } else {
-            movePiece(boardState = currentState, piece = piece, to = to, target = target)
+            movePiece(boardState = state, piece = piece, to = to, target = target)
         }
         piece.markAsMoved()
-        currentState = globalUpdate(currentState)
+        state = globalUpdate(state)
         if (piece is Pawn && canBePromoted(piece)) {
-            currentState =
-                currentState.copy(promotion = Promotion(pawn = piece), soundEffect = null)
-            _state.update { currentState }
-            return currentState
+            state = state.copy(promotion = Promotion(pawn = piece), soundEffect = null)
+            _state.update { state }
+            return
         }
         _state.update {
-            currentState.copy(
+            state.copy(
                 pieces = pieces,
-                currentPlayer = it.currentPlayer.switch()
+                currentPlayer = it.currentPlayer.switch(),
+                playerSwiched = true
             )
         }
-        return currentState
+        return
     }
 
     private fun movePiece(
@@ -90,26 +90,24 @@ class BoardImpl(
         color: PieceColor,
         type: Promotion.Type
     ) {
-        val pieces = _state.value.pieces
-        pieces.removeAll { it.position == position }
+        var state = _state.value
+        state.pieces.removeAll { it.position == position }
         val promotedPiece = when (type) {
             Promotion.Type.QUEEN -> Queen(position = position, color = color)
             Promotion.Type.ROOK -> Rook(position = position, color = color)
             Promotion.Type.BISHOP -> Bishop(position = position, color = color)
             Promotion.Type.KNIGHT -> Knight(position = position, color = color)
         }
-        pieces.add(promotedPiece)
+        state.pieces.add(promotedPiece)
+        state = globalUpdate(state)
         _state.update {
-            it.copy(
-                pieces = pieces,
+            state.copy(
                 currentPlayer = it.currentPlayer.switch(),
-                soundEffect = SoundEffect.SimpleMove
+                soundEffect = if (state.soundEffect == null) SoundEffect.SimpleMove else state.soundEffect,
+                promotion = null,
+                playerSwiched = true
             )
         }
-    }
-
-    override fun promotionConsumed() {
-        _state.update { it.copy(promotion = null) }
     }
 
     override fun reset() {
@@ -166,7 +164,8 @@ class BoardImpl(
         return if (currentPlayerWon) {
             boardState.copy(
                 winner = boardState.currentPlayer,
-                soundEffect = SoundEffect.Checkmate
+                soundEffect = SoundEffect.Checkmate,
+                playerSwiched = if (currentPlayerWon) false else boardState.playerSwiched
             )
         } else {
             boardState

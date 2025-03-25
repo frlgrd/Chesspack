@@ -9,4 +9,5 @@ data class BoardState(
     val takenPieces: Map<PieceColor, MutableList<Piece>> = emptyMap(),
     val promotion: Promotion? = null,
     val winner: PieceColor? = null,
+    var playerSwiched: Boolean = false
 )
