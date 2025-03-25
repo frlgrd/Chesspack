@@ -53,20 +53,20 @@ class BoardMapper {
         return result
     }
 
-    fun mapGameInfo(
+    fun mapBanner(
         color: PieceColor,
         allPieces: Set<Piece>,
         takenPieces: Map<PieceColor, List<Piece>>
-    ): GameInfo {
+    ): GameBanner {
         val advantage = buildAdvantageLabel(color = color, allPieces = allPieces)
         val uiColor = if (color == PieceColor.White) Color.White else Color.Black
-        val gameInfo = GameInfo(
+        val gameBanner = GameBanner(
             takenPieces = emptyMap(),
             pieceColor = color,
             textColor = uiColor,
             advantageLabel = advantage
         )
-        val pieces = takenPieces[color.switch()] ?: return gameInfo
+        val pieces = takenPieces[color.switch()] ?: return gameBanner
         val piecesMap = mutableMapOf<DrawableResource, TakenPiece>()
         pieces.groupBy { it::class }.map {
             val piece = it.value.first()
@@ -78,7 +78,7 @@ class BoardMapper {
                 )
             )
         }
-        return gameInfo.copy(takenPieces = piecesMap)
+        return gameBanner.copy(takenPieces = piecesMap)
     }
 
     fun mapPromotion(promotion: Promotion?): PromotionUiModel? {

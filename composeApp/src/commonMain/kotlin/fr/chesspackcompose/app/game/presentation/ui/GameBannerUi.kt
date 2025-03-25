@@ -15,15 +15,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chesspackcompose.app.game.domain.PieceColor
-import fr.chesspackcompose.app.game.presentation.GameInfo
+import fr.chesspackcompose.app.game.presentation.GameBanner
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import fr.chesspackcompose.app.game.presentation.TakenPiece
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
-fun GameInfoUi(
-    gameInfo: GameInfo?,
+fun GameBannerUi(
+    gameBanner: GameBanner?,
     currentPlayer: PieceColor,
     gameFinished: Boolean,
     onEvent: (GameUiEvent) -> Unit
@@ -35,19 +35,19 @@ fun GameInfoUi(
             .height(50.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (gameInfo != null) {
-            gameInfo.takenPieces.entries.sortedBy { it.value.order }.forEach { taken ->
+        if (gameBanner != null) {
+            gameBanner.takenPieces.entries.sortedBy { it.value.order }.forEach { taken ->
                 TakenPiecesGroup(takenPiece = taken.value, image = taken.key)
             }
             Text(
                 modifier = Modifier.padding(start = 6.dp).weight(1F),
-                text = gameInfo.advantageLabel,
-                color = gameInfo.textColor,
+                text = gameBanner.advantageLabel,
+                color = gameBanner.textColor,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
             Timer(
-                gameInfo = gameInfo,
+                gameBanner = gameBanner,
                 currentPlayer = currentPlayer,
                 gameFinished = gameFinished,
                 onEvent = onEvent

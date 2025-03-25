@@ -29,12 +29,12 @@ class GameViewModel(
             _state.update {
                 it.copy(
                     cells = boardMapper.mapPieces(boardState),
-                    withesGameInfo = boardMapper.mapGameInfo(
+                    withesGameBanner = boardMapper.mapBanner(
                         color = PieceColor.White,
                         allPieces = boardState.pieces,
                         takenPieces = boardState.takenPieces
                     ),
-                    blacksGameInfo = boardMapper.mapGameInfo(
+                    blacksGameBanner = boardMapper.mapBanner(
                         color = PieceColor.Black,
                         allPieces = boardState.pieces,
                         takenPieces = boardState.takenPieces

@@ -37,7 +37,7 @@ data class PieceInfo(
     val legalMoves: List<PiecePosition>
 )
 
-data class GameInfo(
+data class GameBanner(
     val takenPieces: Map<DrawableResource, TakenPiece>,
     val pieceColor: PieceColor,
     val textColor: Color,

@@ -49,14 +49,14 @@ fun BoardUi(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center
     ) {
-        GameInfoUi(
-            gameInfo = state.withesGameInfo,
+        GameBannerUi(
+            gameBanner = state.withesGameBanner,
             currentPlayer = state.currentPlayer,
             gameFinished = state.gameFinished,
             onEvent = onEvent
         )
-        GameInfoUi(
-            gameInfo = state.blacksGameInfo,
+        GameBannerUi(
+            gameBanner = state.blacksGameBanner,
             currentPlayer = state.currentPlayer,
             gameFinished = state.gameFinished,
             onEvent = onEvent

@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chesspackcompose.app.game.domain.PieceColor
-import fr.chesspackcompose.app.game.presentation.GameInfo
+import fr.chesspackcompose.app.game.presentation.GameBanner
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import kotlinx.coroutines.delay
 
@@ -26,14 +26,14 @@ private val redBackgroundColor = Color.Red
 
 @Composable
 fun Timer(
-    gameInfo: GameInfo,
+    gameBanner: GameBanner,
     currentPlayer: PieceColor,
     gameFinished: Boolean,
     onEvent: (GameUiEvent) -> Unit
 ) {
     var leftTime by remember { mutableStateOf(10 * 60 * 1000) }
     var step by remember { mutableStateOf(1000) }
-    val backgroundColor = remember(gameInfo.textColor, leftTime) {
+    val backgroundColor = remember(gameBanner.textColor, leftTime) {
         when {
             leftTime == 0 -> redBackgroundColor
             leftTime < 10 * 1000 -> alphaRedBackgroundColor
@@ -41,14 +41,14 @@ fun Timer(
         }
     }
     LaunchedEffect(currentPlayer, gameFinished) {
-        while (currentPlayer == gameInfo.pieceColor && leftTime > 0 && !gameFinished) {
+        while (currentPlayer == gameBanner.pieceColor && leftTime > 0 && !gameFinished) {
             delay(step.toLong())
             leftTime -= step
             if (leftTime < 10 * 1000 && step == 1000) {
                 step = 100
             }
             if (leftTime == 0) {
-                onEvent(GameUiEvent.TimerFinished(gameInfo.pieceColor))
+                onEvent(GameUiEvent.TimerFinished(gameBanner.pieceColor))
             }
         }
     }
@@ -60,7 +60,7 @@ fun Timer(
             )
             .padding(horizontal = 4.dp),
         text = leftTime.formattedLeftTime(),
-        color = gameInfo.textColor,
+        color = gameBanner.textColor,
         fontSize = 18.sp,
         fontWeight = FontWeight.ExtraBold
     )
