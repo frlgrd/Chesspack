@@ -2,10 +2,10 @@ package fr.chesspackcompose.app.game.data
 
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.BoardState
+import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
-import fr.chesspackcompose.app.game.domain.SoundEffect
 import fr.chesspackcompose.app.game.domain.pieces.Bishop
 import fr.chesspackcompose.app.game.domain.pieces.King
 import fr.chesspackcompose.app.game.domain.pieces.Knight
@@ -42,7 +42,7 @@ class BoardImpl(
         piece.markAsMoved()
         state = globalUpdate(state)
         if (piece is Pawn && canBePromoted(piece)) {
-            state = state.copy(promotion = Promotion(pawn = piece), soundEffect = null)
+            state = state.copy(promotion = Promotion(pawn = piece), moveResult = null)
             _state.update { state }
             return
         }
@@ -50,7 +50,7 @@ class BoardImpl(
             state.copy(
                 pieces = pieces,
                 currentPlayer = it.currentPlayer.switch(),
-                playerSwiched = true
+                playerSwitched = true
             )
         }
         return
@@ -71,9 +71,9 @@ class BoardImpl(
             } else {
                 takenPieces[target.color] = mutableListOf(target)
             }
-            boardState.copy(takenPieces = takenPieces, soundEffect = SoundEffect.Capture)
+            boardState.copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
         } else {
-            boardState.copy(soundEffect = SoundEffect.SimpleMove)
+            boardState.copy(moveResult = MoveResult.SimpleMove)
         }
     }
 
@@ -103,9 +103,9 @@ class BoardImpl(
         _state.update {
             state.copy(
                 currentPlayer = it.currentPlayer.switch(),
-                soundEffect = if (state.soundEffect == null) SoundEffect.SimpleMove else state.soundEffect,
+                moveResult = if (state.moveResult == null) MoveResult.SimpleMove else state.moveResult,
                 promotion = null,
-                playerSwiched = true
+                playerSwitched = true
             )
         }
     }
@@ -143,7 +143,7 @@ class BoardImpl(
         }
         return boardState.copy(
             pieces = pieces.toMutableSet(),
-            soundEffect = if (hasCheckedKing) SoundEffect.Check else boardState.soundEffect
+            moveResult = if (hasCheckedKing) MoveResult.Check else boardState.moveResult
         )
     }
 
@@ -164,8 +164,8 @@ class BoardImpl(
         return if (currentPlayerWon) {
             boardState.copy(
                 winner = boardState.currentPlayer,
-                soundEffect = SoundEffect.Checkmate,
-                playerSwiched = if (currentPlayerWon) false else boardState.playerSwiched
+                moveResult = MoveResult.Checkmate,
+                playerSwitched = if (currentPlayerWon) false else boardState.playerSwitched
             )
         } else {
             boardState
@@ -237,7 +237,7 @@ class BoardImpl(
             king.position = king.position.copy(x = king.position.x - 2)
             rook.position = rook.position.copy(x = king.position.x + 1)
         }
-        return boardState.copy(soundEffect = SoundEffect.Castling)
+        return boardState.copy(moveResult = MoveResult.Castling)
     }
     // endregion
 

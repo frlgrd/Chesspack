@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import chesspackcompose.composeapp.generated.resources.Res
 import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
+import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
-import fr.chesspackcompose.app.game.domain.SoundEffect
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -44,8 +44,8 @@ class GameViewModel(
                     winner = boardState.winner
                 )
             }
-            playSoundEffect(soundEffect = boardState.soundEffect)
-            if (boardState.playerSwiched) {
+            playSoundEffect(moveResult = boardState.moveResult)
+            if (boardState.playerSwitched) {
                 playerSwitched()
             }
         }.launchIn(viewModelScope)
@@ -107,28 +107,20 @@ class GameViewModel(
         delay(300)
         rotateBoard()
     }
-    /*
-        private fun checkPromotionConsumption(boardState: BoardState) {
-            boardState.promotion ?: return
-            if (boardState.promotion.pawn.color == boardState.currentPlayer) return
-            _state.update { it.copy(promotionUiModel = null) }
-            board.promotionConsumed()
-            rotateBoard()
-        }*/
 
     private fun rotateBoard() {
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private fun playSoundEffect(soundEffect: SoundEffect?) {
-        soundEffect ?: return
-        val effect = when (soundEffect) {
-            SoundEffect.Castling -> "castle"
-            SoundEffect.SimpleMove -> "move"
-            SoundEffect.Check -> "check"
-            SoundEffect.Capture -> "capture"
-            SoundEffect.Checkmate -> "checkmate"
+    private fun playSoundEffect(moveResult: MoveResult?) {
+        moveResult ?: return
+        val effect = when (moveResult) {
+            MoveResult.Castling -> "castle"
+            MoveResult.SimpleMove -> "move"
+            MoveResult.Check -> "check"
+            MoveResult.Capture -> "capture"
+            MoveResult.Checkmate -> "checkmate"
         }
         soundEffectPlayer.play(uri = Res.getUri("files/${effect}.mp3"))
     }
