@@ -44,7 +44,7 @@ class GameViewModel(
                 )
             }
             playSoundEffect(moveResult = boardState.moveResult)
-            if (boardState.playerSwitched) {
+            if (boardState.playerSwitched && boardState.winner == null) {
                 playerSwitched()
             }
         }.launchIn(viewModelScope)
@@ -104,10 +104,6 @@ class GameViewModel(
     private suspend fun playerSwitched() {
         _state.update { it.copy(canReset = true) }
         delay(300)
-        rotateBoard()
-    }
-
-    private fun rotateBoard() {
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
     }
 
