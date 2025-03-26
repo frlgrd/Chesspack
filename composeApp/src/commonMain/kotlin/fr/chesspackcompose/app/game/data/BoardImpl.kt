@@ -85,12 +85,7 @@ class BoardImpl(
     }
 
     override fun reset() {
-        _state.value = Board.State(pieces = fen.toPieces().toMutableSet())
-        _state.update {
-            it.copy(pieces = it.pieces.map { piece ->
-                piece.updateLegalMoves(legalMoves(piece))
-            }.toMutableSet())
-        }
+        _state.value = Board.State(pieces = fen.toPieces().toMutableSet()).update()
     }
 
     private fun Board.State.movePiece(
@@ -141,7 +136,14 @@ class BoardImpl(
 
     private fun Board.State.updateLegalMoves(): Board.State {
         return copy(pieces = pieces
-            .map { piece -> piece.updateLegalMoves(moves = legalMoves(piece)) }
+            .map { piece ->
+                piece.updateLegalMoves(
+                    moves = legalMoves(
+                        pieces = pieces,
+                        piece = piece
+                    )
+                )
+            }
             .toMutableSet()
         )
     }
@@ -162,18 +164,23 @@ class BoardImpl(
         }
     }
 
-    private fun legalMoves(piece: Piece): List<PiecePosition> {
-        return pseudoLegalMoves(
-            pieces = _state.value.pieces,
-            piece = piece
-        ).filterNot { position -> isIllegalMove(piece = piece, position = position) }
+    private fun legalMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
+        return pseudoLegalMoves(pieces = pieces, piece = piece)
+            .filterNot { position ->
+                isIllegalMove(
+                    pieces = pieces,
+                    piece = piece,
+                    position = position
+                )
+            }
     }
 
     private fun isIllegalMove(
+        pieces: Set<Piece>,
         piece: Piece,
         position: PiecePosition,
     ): Boolean {
-        val piecesAfterMove = _state.value.pieces.map(Piece::copyPiece).toMutableSet()
+        val piecesAfterMove = pieces.map(Piece::copyPiece).toMutableSet()
         piecesAfterMove.removeAll { it.position == position }
         val updatedPiece = piecesAfterMove.find {
             it.position == piece.position
