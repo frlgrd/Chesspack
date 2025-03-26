@@ -21,7 +21,7 @@ value class Fen(
 ) {
     companion object {
         private const val DEFAULT =
-            "rnbqkbnr/pppppppp/8/8/3Q1B2/1BN3N1/PPPPPPPP/R3K2R b Kkq - 0 1"
+            "r3k2r/pppppppp/1nbq2n1/5b2/3Q1B2/1BN3N1/PPPPPPPP/R3K2R w KQkq - 0 1\n"
         private const val ROWS_SEPARATOR = '/'
         private const val ROOK = 'r'
         private const val KNIGHT = 'n'
@@ -62,7 +62,12 @@ value class Fen(
     }
 
     private fun setCastling(rook: Rook) {
-        val config = fen.split(ROWS_SEPARATOR)[7].substringAfter(' ')
+        val lastRow = fen.split(ROWS_SEPARATOR)[7]
+        if (!lastRow.contains(' ')) {
+            rook.markAsMoved()
+            return
+        }
+        val config = lastRow.substringAfter(' ')
         val isWhiteQueenRook = rook.position.x == 0 && rook.color == PieceColor.White
         val isWhiteKinRook = rook.position.x == 7 && rook.color == PieceColor.White
         val isBlackQueenRook = rook.position.x == 0 && rook.color == PieceColor.Black
