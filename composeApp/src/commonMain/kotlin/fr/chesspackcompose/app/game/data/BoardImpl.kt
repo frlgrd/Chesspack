@@ -117,7 +117,7 @@ class BoardImpl(
     }
 
     private fun Board.State.update(): Board.State {
-        return updateCheckedKings().updateLegalMoves().updateWinner()
+        return updateLegalMoves().updateCheckedKings().updateWinner()
     }
 
     private fun Board.State.updateCheckedKings(): Board.State {
@@ -144,7 +144,7 @@ class BoardImpl(
 
     private fun Board.State.updateLegalMoves(): Board.State {
         return copy(pieces = pieces
-            .map { it.updateLegalMoves(moves = legalMoves(it)) }
+            .map { piece -> piece.updateLegalMoves(moves = legalMoves(piece)) }
             .toMutableSet()
         )
     }
@@ -159,7 +159,7 @@ class BoardImpl(
             copy(
                 winner = currentPlayer,
                 moveResult = MoveResult.Checkmate,
-                playerSwitched = if (currentPlayerWon) false else playerSwitched
+                playerSwitched = false
             )
         } else {
             this
