@@ -35,9 +35,9 @@ class BoardImpl(
         val piece = pieces.find { it.position == from } ?: return
         val target = pieces.find { it.position == to }
         state = if (target?.color == piece.color) {
-            castling(boardState = state, king = piece, rook = target)
+            state.castling(king = piece, rook = target)
         } else {
-            movePiece(boardState = state, piece = piece, to = to, target = target)
+            state.movePiece(piece = piece, to = to, target = target)
         }
         piece.markAsMoved()
         state = globalUpdate(state)
@@ -55,24 +55,23 @@ class BoardImpl(
         }
     }
 
-    private fun movePiece(
-        boardState: BoardState,
+    private fun BoardState.movePiece(
         piece: Piece,
         to: PiecePosition,
         target: Piece?
     ): BoardState {
-        boardState.pieces.removeAll { it.position == to }
+        pieces.removeAll { it.position == to }
         piece.position = to
         return if (target != null) {
-            val takenPieces = boardState.takenPieces.toMutableMap()
+            val takenPieces = takenPieces.toMutableMap()
             if (takenPieces.containsKey(target.color)) {
                 takenPieces[target.color]!!.add(target)
             } else {
                 takenPieces[target.color] = mutableListOf(target)
             }
-            boardState.copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
+            copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
         } else {
-            boardState.copy(moveResult = MoveResult.SimpleMove)
+            copy(moveResult = MoveResult.SimpleMove)
         }
     }
 
@@ -221,8 +220,7 @@ class BoardImpl(
         return piecesBetween.isEmpty()
     }
 
-    private fun castling(
-        boardState: BoardState,
+    private fun BoardState.castling(
         king: Piece,
         rook: Piece
     ): BoardState {
@@ -233,7 +231,7 @@ class BoardImpl(
             king.position = king.position.copy(x = king.position.x - 2)
             rook.position = rook.position.copy(x = king.position.x + 1)
         }
-        return boardState.copy(moveResult = MoveResult.Castling)
+        return copy(moveResult = MoveResult.Castling)
     }
     // endregion
 
