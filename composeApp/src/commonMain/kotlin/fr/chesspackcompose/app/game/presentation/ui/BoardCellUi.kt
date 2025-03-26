@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -46,6 +47,8 @@ fun BoardCellUi(
     var isDragging by remember { mutableStateOf(false) }
     var dragOffset by remember { mutableStateOf(Offset.Zero) }
     var startReleaseAnimation by remember { mutableStateOf(false) }
+    val density = LocalDensity.current
+    val sizeInPixel = remember(size) { size.value * density.density }
 
     LaunchedEffect(startReleaseAnimation) {
         if (startReleaseAnimation) {
@@ -69,13 +72,13 @@ fun BoardCellUi(
                     if (cell.pieceInfo == null) {
                         drawCircle(
                             color = moveIndicatorColor,
-                            radius = size.value.times(0.5F)
+                            radius = sizeInPixel / 8
                         )
                     } else {
                         drawCircle(
                             color = moveIndicatorColor,
-                            radius = size.value.times(1.2F),
-                            style = Stroke(width = size.value / 4)
+                            radius = sizeInPixel / 2 - sizeInPixel / 8 + sizeInPixel / 16,
+                            style = Stroke(width = sizeInPixel / 8)
                         )
                     }
                 }
@@ -106,7 +109,6 @@ fun BoardCellUi(
                 }
                 .conditional(cell.moveEnabled) {
                     pointerInput(Unit) {
-                        val sizeInPixel = size.value.times(density)
                         detectDragGestures(
                             onDragStart = {
                                 isDragging = true
