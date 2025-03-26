@@ -22,7 +22,7 @@ value class Fen(
     private val fen: String = DEFAULT
 ) {
     companion object {
-        private const val DEFAULT = "rnbqkbnr/ppp1pppp/8/8/3p4/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        private const val DEFAULT = "rnbqkbnr/8/8/8/3p4/8/2P5/RNBQKBNR w KQkq - 0 1\n"
         private const val ROWS_SEPARATOR = '/'
         private const val ROOK = 'r'
         private const val KNIGHT = 'n'

@@ -131,7 +131,8 @@ class BoardImpl(
             if (piece is King) {
                 val opponentsMoves = opponentsMoves(
                     pieces = pieces,
-                    pieceColor = piece.color
+                    pieceColor = piece.color,
+                    enPassant = enPassant
                 )
                 val isChecked = opponentsMoves.contains(piece.position)
                 if (isChecked) {
@@ -149,10 +150,16 @@ class BoardImpl(
 
     private fun Board.State.updateLegalMoves(): Board.State {
         return copy(pieces = pieces.map { piece ->
-            val pseudoLegalMoves = pseudoLegalMoves(pieces = pieces, piece = piece)
+            val pseudoLegalMoves =
+                pseudoLegalMoves(pieces = pieces, piece = piece, enPassant = enPassant)
             piece.updatePseudoLegalMoves(moves = pseudoLegalMoves)
             val legalMoves = pseudoLegalMoves.filterNot { position ->
-                isIllegalMove(pieces = pieces, piece = piece, position = position)
+                isIllegalMove(
+                    pieces = pieces,
+                    piece = piece,
+                    position = position,
+                    enPassant = enPassant
+                )
             }
             piece.updateLegalMoves(moves = legalMoves)
         }.toMutableSet())
@@ -178,6 +185,7 @@ class BoardImpl(
         pieces: Set<Piece>,
         piece: Piece,
         position: PiecePosition,
+        enPassant: Pawn?
     ): Boolean {
         val piecesAfterMove = pieces.map(Piece::copyPiece).toMutableSet()
         piecesAfterMove.removeAll { it.position == position }
@@ -193,7 +201,8 @@ class BoardImpl(
         val opponentsMoves = opponentsMoves(
             pieces = piecesAfterMove,
             pieceColor = piece.color,
-            attackedPosition = position
+            attackedPosition = position,
+            enPassant = enPassant
         )
         return opponentsMoves.contains(kingPosition)
     }
@@ -255,12 +264,13 @@ class BoardImpl(
     // region Moves
     private fun pseudoLegalMoves(
         pieces: Set<Piece>,
-        piece: Piece
+        piece: Piece,
+        enPassant: Pawn?,
     ): List<PiecePosition> = when (piece) {
         is Bishop -> diagonalMoves(pieces = pieces, piece = piece)
         is King -> kingMoves(pieces = pieces, king = piece)
         is Knight -> knightMoves(pieces = pieces, piece = piece)
-        is Pawn -> pawnMoves(pieces = pieces, pawn = piece)
+        is Pawn -> pawnMoves(pieces = pieces, pawn = piece, enPassant = enPassant)
         is Queen -> queenMoves(pieces = pieces, piece = piece)
         is Rook -> straightMoves(pieces = pieces, piece = piece)
     }
@@ -376,7 +386,8 @@ class BoardImpl(
 
     private fun pawnMoves(
         pieces: Set<Piece>,
-        pawn: Pawn
+        pawn: Pawn,
+        enPassant: Pawn?
     ): List<PiecePosition> {
         val direction = if (pawn.color == PieceColor.White) -1 else 1
         return searchMove(
@@ -386,7 +397,15 @@ class BoardImpl(
             yDirection = direction,
             max = if (pawn.moved) 1 else 2,
             canAttackFromFront = false
-        ) + pawnAttackMoves(pieces = pieces, piece = pawn, direction = direction)
+        ) + pawnAttackMoves(
+            pieces = pieces,
+            piece = pawn,
+            direction = direction
+        ) + pawnEnPassantAttack(
+            piece = pawn,
+            enPassant = enPassant,
+            direction = direction
+        )
     }
 
     private fun pawnAttackMoves(
@@ -406,6 +425,20 @@ class BoardImpl(
             attackMoves.add(rightPiece.position)
         }
         return attackMoves
+    }
+
+    private fun pawnEnPassantAttack(
+        piece: Piece,
+        enPassant: Pawn?,
+        direction: Int,
+    ): List<PiecePosition> {
+        enPassant ?: return emptyList()
+        if (enPassant == piece) return emptyList()
+        if (enPassant.color == piece.color) return emptyList()
+        if (enPassant.position.y != piece.position.y) return emptyList()
+        val distance = abs(enPassant.position.x - piece.position.x)
+        if (distance != 1) return emptyList()
+        return listOf(PiecePosition(x = enPassant.position.x, y = piece.position.y + direction))
     }
 
     private fun castlingMoves(
@@ -453,12 +486,13 @@ class BoardImpl(
     private fun opponentsMoves(
         pieces: Set<Piece>,
         pieceColor: PieceColor,
-        attackedPosition: PiecePosition? = null
+        attackedPosition: PiecePosition? = null,
+        enPassant: Pawn?
     ): List<PiecePosition> {
         return pieces.asSequence()
             .filter { it.color != pieceColor }
             .filter { it.position != attackedPosition }
-            .map { pseudoLegalMoves(pieces = pieces, piece = it) }
+            .map { pseudoLegalMoves(pieces = pieces, piece = it, enPassant = enPassant) }
             .flatten()
             .distinct()
             .toList()
