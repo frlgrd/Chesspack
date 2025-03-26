@@ -44,7 +44,7 @@ class GameViewModel(
                 )
             }
             playSoundEffect(moveResult = boardState.moveResult)
-            if (boardState.playerSwitched && boardState.winner == null) {
+            if (boardState.playerSwitched) {
                 playerSwitched()
             }
         }.launchIn(viewModelScope)
