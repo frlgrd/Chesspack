@@ -62,8 +62,8 @@ value class Fen(
                         else -> null
                     }
                     if (piece != null) {
-                        if (piece is Rook) initRook(piece)
-                        if (piece is Pawn) initPawn(piece)
+                        if (piece is Rook) markRook(piece)
+                        if (piece is Pawn) markPawn(piece)
                         pieces.add(piece)
                     }
                     x++
@@ -73,7 +73,7 @@ value class Fen(
         return pieces
     }
 
-    private fun initRook(rook: Rook) {
+    private fun markRook(rook: Rook) {
         val lastRow = fen.split(ROWS_SEPARATOR)[7]
         if (!lastRow.contains(' ')) {
             rook.markAsMoved()
@@ -92,7 +92,7 @@ value class Fen(
         }
     }
 
-    private fun initPawn(pawn: Pawn) {
+    private fun markPawn(pawn: Pawn) {
         if (pawn.color == PieceColor.Black && pawn.position.y != 1) pawn.markAsMoved()
         if (pawn.color == PieceColor.White && pawn.position.y != 6) pawn.markAsMoved()
     }
