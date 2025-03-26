@@ -101,7 +101,7 @@ class BoardImpl(
             state.globalUpdate()
                 .copy(
                     currentPlayer = it.currentPlayer.switch(),
-                    moveResult = if (state.moveResult == null) MoveResult.SimpleMove else state.moveResult,
+                    moveResult = state.moveResult ?: MoveResult.SimpleMove,
                     promotion = null,
                     playerSwitched = true
                 )
