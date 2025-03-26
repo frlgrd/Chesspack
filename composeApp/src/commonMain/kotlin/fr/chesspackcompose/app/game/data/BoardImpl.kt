@@ -53,7 +53,6 @@ class BoardImpl(
                 playerSwitched = true
             )
         }
-        return
     }
 
     private fun movePiece(
