@@ -22,7 +22,7 @@ value class Fen(
 ) {
     companion object {
         private const val DEFAULT =
-            "r3k2r/pppppppp/1nbq2n1/5b2/3Q1B2/1BN3N1/PPPPPPPP/R3K2R w KQkq - 0 1\n"
+            "r3k2r/p1pppppp/1pbq2n1/5b2/3Q1B2/1BN1P1N1/PPPP1PPP/R3K2R w KQkq - 0 1\n"
         private const val ROWS_SEPARATOR = '/'
         private const val ROOK = 'r'
         private const val KNIGHT = 'n'
@@ -62,7 +62,8 @@ value class Fen(
                         else -> null
                     }
                     if (piece != null) {
-                        if (piece is Rook) setCastling(piece)
+                        if (piece is Rook) initRook(piece)
+                        if (piece is Pawn) initPawn(piece)
                         pieces.add(piece)
                     }
                     x++
@@ -72,7 +73,7 @@ value class Fen(
         return pieces
     }
 
-    private fun setCastling(rook: Rook) {
+    private fun initRook(rook: Rook) {
         val lastRow = fen.split(ROWS_SEPARATOR)[7]
         if (!lastRow.contains(' ')) {
             rook.markAsMoved()
@@ -89,6 +90,11 @@ value class Fen(
             isBlackQueenRook && !config.contains('q') -> rook.markAsMoved()
             isBlackKinRook && !config.contains('k') -> rook.markAsMoved()
         }
+    }
+
+    private fun initPawn(pawn: Pawn) {
+        if (pawn.color == PieceColor.Black && pawn.position.y != 1) pawn.markAsMoved()
+        if (pawn.color == PieceColor.White && pawn.position.y != 6) pawn.markAsMoved()
     }
 
     private fun resolvePlayer(): PieceColor {
