@@ -109,7 +109,9 @@ class BoardImpl(
     }
 
     private fun Board.State.update(): Board.State {
-        return updateLegalMoves().updateCheckedKings().updateWinner()
+        return updateCheckedKings()
+            .updateLegalMoves()
+            .updateWinner()
     }
 
     private fun Board.State.updateCheckedKings(): Board.State {
@@ -206,7 +208,21 @@ class BoardImpl(
         king: King,
         rook: Rook
     ): Boolean {
-        if (king.moved || rook.moved || king.isChecked) return false
+        if (king.moved || rook.moved) return false
+
+        val kingPath = if (king.position.x < rook.position.x) {
+            king.position.x..<king.position.x + 2
+        } else {
+            king.position.x downTo king.position.x - 2
+        }.map { PiecePosition(x = it, y = king.position.y) }
+        val opponentsMoves = pieces.filter { it.color != king.color }
+            .map { it.legalMoves }
+            .flatten()
+            .distinct()
+        kingPath.forEach { kingPosition ->
+            if (opponentsMoves.contains(kingPosition)) return false
+        }
+
         val range = if (king.position.x < rook.position.x) {
             king.position.x + 1..<rook.position.x // pieces between king and east rook
         } else {
