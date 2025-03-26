@@ -135,17 +135,11 @@ class BoardImpl(
     }
 
     private fun Board.State.updateLegalMoves(): Board.State {
-        return copy(pieces = pieces
-            .map { piece ->
-                piece.updateLegalMoves(
-                    moves = legalMoves(
-                        pieces = pieces,
-                        piece = piece
-                    )
-                )
-            }
-            .toMutableSet()
-        )
+        return copy(pieces = pieces.map { piece ->
+            piece.updateLegalMoves(
+                moves = legalMoves(pieces = pieces, piece = piece)
+            )
+        }.toMutableSet())
     }
 
     private fun Board.State.updateWinner(): Board.State {
@@ -217,8 +211,9 @@ class BoardImpl(
         } else {
             king.position.x - 1 downTo rook.position.x + 1 // pieces between king and west rook
         }
-        val piecesBetween =
-            range.mapNotNull { pieceAt(pieces = _state.value.pieces, x = it, y = king.position.y) }
+        val piecesBetween = range.mapNotNull {
+            pieceAt(pieces = _state.value.pieces, x = it, y = king.position.y)
+        }
         return piecesBetween.isEmpty()
     }
 
