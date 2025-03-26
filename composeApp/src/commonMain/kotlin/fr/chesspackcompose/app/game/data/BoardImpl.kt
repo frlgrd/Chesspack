@@ -74,10 +74,6 @@ class BoardImpl(
         }
     }
 
-    override fun pieceAt(pieces: Set<Piece>, x: Int, y: Int): Piece? {
-        return pieces.find { it.position.x == x && it.position.y == y }
-    }
-
     override fun legalMoves(position: PiecePosition): List<PiecePosition> {
         return _state.value.pieces.find { it.position == position }?.legalMoves.orEmpty()
     }
@@ -170,7 +166,7 @@ class BoardImpl(
         return pseudoLegalMoves(
             pieces = _state.value.pieces,
             piece = piece
-        ).filterNot { isIllegalMove(piece = piece, position = it) }
+        ).filterNot { position -> isIllegalMove(piece = piece, position = position) }
     }
 
     private fun isIllegalMove(
@@ -426,6 +422,10 @@ class BoardImpl(
             move++
         } while (!enemyMet && move < max)
         return moves
+    }
+
+    private fun pieceAt(pieces: Set<Piece>, x: Int, y: Int): Piece? {
+        return pieces.find { it.position.x == x && it.position.y == y }
     }
 
     private fun opponentsMoves(
