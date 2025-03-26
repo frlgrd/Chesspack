@@ -155,8 +155,7 @@ class BoardImpl(
         return if (currentPlayerWon) {
             copy(
                 winner = currentPlayer,
-                moveResult = MoveResult.Checkmate,
-                playerSwitched = false
+                moveResult = MoveResult.Checkmate
             )
         } else {
             this
