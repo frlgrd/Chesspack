@@ -141,11 +141,7 @@ class BoardImpl(
             val pseudoLegalMoves = pseudoLegalMoves(pieces = pieces, piece = piece)
             piece.updatePseudoLegalMoves(moves = pseudoLegalMoves)
             val legalMoves = pseudoLegalMoves.filterNot { position ->
-                isIllegalMove(
-                    pieces = pieces,
-                    piece = piece,
-                    position = position
-                )
+                isIllegalMove(pieces = pieces, piece = piece, position = position)
             }
             piece.updateLegalMoves(moves = legalMoves)
         }.toMutableSet())
