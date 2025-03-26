@@ -1,5 +1,6 @@
 package fr.chesspackcompose.app.game.data
 
+import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.pieces.Bishop
@@ -31,7 +32,17 @@ value class Fen(
         private const val PAWN = 'p'
     }
 
-    fun toPieces(): MutableSet<Piece> {
+    fun toBoardState(): Board.State {
+        val pieces = resolvePieces()
+        val currentPlayer = resolvePlayer()
+        return Board.State(
+            pieces = pieces,
+            currentPlayer = currentPlayer,
+            playerSwitched = currentPlayer == PieceColor.Black
+        )
+    }
+
+    private fun resolvePieces(): MutableSet<Piece> {
         val pieces = mutableSetOf<Piece>()
         fen.split(ROWS_SEPARATOR).forEachIndexed { y, row ->
             var x = 0
@@ -77,6 +88,18 @@ value class Fen(
             isWhiteKinRook && !config.contains('K') -> rook.markAsMoved()
             isBlackQueenRook && !config.contains('q') -> rook.markAsMoved()
             isBlackKinRook && !config.contains('k') -> rook.markAsMoved()
+        }
+    }
+
+    private fun resolvePlayer(): PieceColor {
+        val lastRow = fen.split(ROWS_SEPARATOR)[7]
+        if (!lastRow.contains(' ')) {
+            return PieceColor.White
+        }
+        return if (lastRow.contains("w")) {
+            PieceColor.White
+        } else {
+            PieceColor.Black
         }
     }
 }
