@@ -40,7 +40,7 @@ value class Fen(
             pieces = pieces,
             currentPlayer = currentPlayer,
             playerSwitched = currentPlayer == PieceColor.Black,
-            takenPieces = resolveTakenPieces(pieces)
+            takenPieces = resolveTakenPieces(pieces = pieces)
         )
     }
 
