@@ -85,7 +85,7 @@ class BoardImpl(
     }
 
     override fun reset() {
-        _state.value = Board.State(pieces = fen.toPieces().toMutableSet()).update()
+        _state.value = Board.State(pieces = fen.toPieces()).update()
     }
 
     private fun Board.State.movePiece(

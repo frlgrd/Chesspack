@@ -21,7 +21,7 @@ value class Fen(
 ) {
     companion object {
         private const val DEFAULT =
-            "1n1qkb1r/pppppppp/4b1n1/1NP5/PPr2BN1/8/5PPP/R3K2R w KQkq - 0 1\n"
+            "rnbqkbnr/pppppppp/8/8/3Q1B2/1BN3N1/PPPPPPPP/R3K2R b Kkq - 0 1"
         private const val ROWS_SEPARATOR = '/'
         private const val ROOK = 'r'
         private const val KNIGHT = 'n'
@@ -31,7 +31,7 @@ value class Fen(
         private const val PAWN = 'p'
     }
 
-    fun toPieces(): Set<Piece> {
+    fun toPieces(): MutableSet<Piece> {
         val pieces = mutableSetOf<Piece>()
         fen.split(ROWS_SEPARATOR).forEachIndexed { y, row ->
             var x = 0
@@ -50,11 +50,24 @@ value class Fen(
                         PAWN -> Pawn(position = position, color = color)
                         else -> null
                     }
-                    if (piece != null) pieces.add(piece)
+                    if (piece != null) {
+                        if (piece is Rook) setCastling(piece)
+                        pieces.add(piece)
+                    }
                     x++
                 }
             }
         }
         return pieces
+    }
+
+    private fun setCastling(rook: Rook) {
+        val config = fen.split(ROWS_SEPARATOR)[7].substringAfter(' ')
+        when {
+            rook.position.x == 0 && rook.color == PieceColor.White && !config.contains('Q') -> rook.markAsMoved()
+            rook.position.x == 0 && rook.color == PieceColor.Black && !config.contains('q') -> rook.markAsMoved()
+            rook.position.x == 7 && rook.color == PieceColor.White && !config.contains('K') -> rook.markAsMoved()
+            rook.position.x == 7 && rook.color == PieceColor.Black && !config.contains('k') -> rook.markAsMoved()
+        }
     }
 }
