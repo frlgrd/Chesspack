@@ -122,7 +122,7 @@ value class Fen(
                 expectedCount: Int,
                 createMissingPiece: () -> Piece
             ): MutableList<Piece> {
-                val actualCount = pieces.count { type.isInstance(it) }
+                val actualCount = pieces.count(type::isInstance)
                 val missing = mutableListOf<Piece>()
                 repeat(expectedCount - actualCount) {
                     missing.add(createMissingPiece())
