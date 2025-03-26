@@ -202,6 +202,7 @@ class BoardImpl(
 
     // region Castling
     private fun canCastling(
+        pieces: Set<Piece>,
         king: King,
         rook: Rook
     ): Boolean {
@@ -212,7 +213,7 @@ class BoardImpl(
             king.position.x - 1 downTo rook.position.x + 1 // pieces between king and west rook
         }
         val piecesBetween = range.mapNotNull {
-            pieceAt(pieces = _state.value.pieces, x = it, y = king.position.y)
+            pieceAt(pieces = pieces, x = it, y = king.position.y)
         }
         return piecesBetween.isEmpty()
     }
@@ -396,7 +397,7 @@ class BoardImpl(
             .filterIsInstance<Rook>()
             .filter { it.color == king.color }
             .mapNotNull { rook ->
-                if (canCastling(king, rook)) rook.position else null
+                if (canCastling(pieces = pieces, king = king, rook = rook)) rook.position else null
             }
     }
 
