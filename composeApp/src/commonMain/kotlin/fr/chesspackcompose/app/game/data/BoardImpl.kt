@@ -138,9 +138,16 @@ class BoardImpl(
 
     private fun Board.State.updateLegalMoves(): Board.State {
         return copy(pieces = pieces.map { piece ->
-            piece.updateLegalMoves(
-                moves = legalMoves(pieces = pieces, piece = piece)
-            )
+            val pseudoLegalMoves = pseudoLegalMoves(pieces = pieces, piece = piece)
+            piece.updatePseudoLegalMoves(moves = pseudoLegalMoves)
+            val legalMoves = pseudoLegalMoves.filterNot { position ->
+                isIllegalMove(
+                    pieces = pieces,
+                    piece = piece,
+                    position = position
+                )
+            }
+            piece.updateLegalMoves(moves = legalMoves)
         }.toMutableSet())
     }
 
@@ -158,17 +165,6 @@ class BoardImpl(
         } else {
             this
         }
-    }
-
-    private fun legalMoves(pieces: Set<Piece>, piece: Piece): List<PiecePosition> {
-        return pseudoLegalMoves(pieces = pieces, piece = piece)
-            .filterNot { position ->
-                isIllegalMove(
-                    pieces = pieces,
-                    piece = piece,
-                    position = position
-                )
-            }
     }
 
     private fun isIllegalMove(
@@ -216,7 +212,7 @@ class BoardImpl(
             king.position.x downTo king.position.x - 2
         }.map { PiecePosition(x = it, y = king.position.y) }
         val opponentsMoves = pieces.filter { it.color != king.color }
-            .map { it.legalMoves }
+            .map { it.pseudoLegalMoves }
             .flatten()
             .distinct()
         kingPath.forEach { kingPosition ->

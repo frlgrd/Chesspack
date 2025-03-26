@@ -10,11 +10,18 @@ sealed class Piece(
 ) {
     var legalMoves: List<PiecePosition> = emptyList()
         private set
+    var pseudoLegalMoves: List<PiecePosition> = emptyList()
+        private set
     var moved = false
         private set
 
     fun updateLegalMoves(moves: List<PiecePosition>): Piece {
         legalMoves = moves
+        return this
+    }
+
+    fun updatePseudoLegalMoves(moves: List<PiecePosition>): Piece {
+        pseudoLegalMoves = moves
         return this
     }
 
