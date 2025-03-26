@@ -40,18 +40,19 @@ class BoardImpl(
         }
         piece.markAsMoved()
         state = state.update()
-        if (piece is Pawn && canBePromoted(piece)) {
-            state = state.copy(promotion = Promotion(pawn = piece), moveResult = null)
-            _state.update { state }
-            return
-        }
-        _state.update {
-            state.copy(
+        state = when {
+            piece is Pawn && canBePromoted(piece) -> state.copy(
+                promotion = Promotion(pawn = piece),
+                moveResult = null
+            )
+
+            else -> state.copy(
                 pieces = pieces,
-                currentPlayer = it.currentPlayer.switch(),
+                currentPlayer = state.currentPlayer.switch(),
                 playerSwitched = true
             )
         }
+        _state.update { state }
     }
 
     override fun legalMoves(position: PiecePosition): List<PiecePosition> {
