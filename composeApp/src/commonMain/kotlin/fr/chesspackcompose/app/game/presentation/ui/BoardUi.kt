@@ -5,10 +5,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
@@ -51,9 +49,25 @@ fun BoardUi(
     Column(
         modifier = modifier.fillMaxSize()
             .padding(bottom = 20.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Bottom
     ) {
+        Box(
+            modifier = Modifier
+                .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
+                .aspectRatio(1F)
+                .graphicsLayer { rotationZ = currentRotation }
+                .weight(1F)
+        ) {
+            state.cells.forEach { cell ->
+                BoardCellUi(
+                    cell = cell,
+                    size = squareSize,
+                    rotation = -currentRotation,
+                    onEvent = onEvent
+                )
+            }
+        }
         Divider()
         GameBannerUi(
             gameBanner = state.withesGameBanner,
@@ -69,21 +83,5 @@ fun BoardUi(
             onEvent = onEvent
         )
         Divider()
-        Spacer(Modifier.height(50.dp))
-        Box(
-            modifier = Modifier
-                .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
-                .aspectRatio(1F)
-                .graphicsLayer { rotationZ = currentRotation }
-        ) {
-            state.cells.forEach { cell ->
-                BoardCellUi(
-                    cell = cell,
-                    size = squareSize,
-                    rotation = -currentRotation,
-                    onEvent = onEvent
-                )
-            }
-        }
     }
 }

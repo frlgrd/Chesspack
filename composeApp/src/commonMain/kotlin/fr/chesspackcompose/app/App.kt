@@ -36,9 +36,11 @@ fun App() {
                 .background(Color.DarkGray)
                 .safeDrawingPadding(),
             backgroundColor = Color.DarkGray,
+            contentColor = Color.DarkGray,
             topBar = {
                 TopAppBar(
                     backgroundColor = Color.DarkGray,
+                    contentColor = Color.White,
                     actions = {
                         if (state.canReset) {
                             IconButton(onClick = { viewModel.onEvent(GameUiEvent.ResetRequested) }) {
