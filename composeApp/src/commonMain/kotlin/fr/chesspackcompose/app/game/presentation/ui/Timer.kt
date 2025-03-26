@@ -21,7 +21,7 @@ import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import kotlinx.coroutines.delay
 
 private val defaultBackgroundColor = Color.White.copy(alpha = 0.2F)
-private val alphaRedBackgroundColor = Color.Red.copy(alpha = 0.2F)
+private val alphaRedBackgroundColor = Color.Red.copy(alpha = 0.5F)
 private val redBackgroundColor = Color.Red
 
 @Composable
@@ -43,7 +43,7 @@ fun Timer(
     val backgroundColor = remember(gameBanner.textColor, leftTime) {
         when {
             leftTime == 0 -> redBackgroundColor
-            leftTime < 10 * 1000 -> alphaRedBackgroundColor
+            leftTime < 60 * 1000 -> alphaRedBackgroundColor
             else -> defaultBackgroundColor
         }
     }
