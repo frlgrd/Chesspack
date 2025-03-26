@@ -117,7 +117,7 @@ value class Fen(
 
         fun getTakenPieces(pieces: Set<Piece>, color: PieceColor): MutableList<Piece> {
             fun missingPieces(
-                pieces: Set<Piece>,
+                pieces: List<Piece>,
                 type: KClass<out Piece>,
                 expectedCount: Int,
                 createMissingPiece: () -> Piece
@@ -130,7 +130,7 @@ value class Fen(
                 return missing
             }
 
-            val enemies = pieces.filter { it.color == color }.toMutableSet()
+            val enemies = pieces.filter { it.color == color }
             val takenPiecesPosition = PiecePosition(0, 0)
             val takenPieces = missingPieces(
                 pieces = enemies,
