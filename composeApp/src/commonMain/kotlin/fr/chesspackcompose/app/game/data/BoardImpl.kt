@@ -88,7 +88,7 @@ class BoardImpl(
         color: PieceColor,
         type: Promotion.Type
     ) {
-        val state = _state.value
+        var state = _state.value
         state.pieces.removeAll { it.position == position }
         val promotedPiece = when (type) {
             Promotion.Type.QUEEN -> Queen(position = position, color = color)
@@ -97,14 +97,14 @@ class BoardImpl(
             Promotion.Type.KNIGHT -> Knight(position = position, color = color)
         }
         state.pieces.add(promotedPiece)
+        state = state.globalUpdate()
         _state.update {
-            state.globalUpdate()
-                .copy(
-                    currentPlayer = it.currentPlayer.switch(),
-                    moveResult = state.moveResult ?: MoveResult.SimpleMove,
-                    promotion = null,
-                    playerSwitched = true
-                )
+            state.copy(
+                currentPlayer = it.currentPlayer.switch(),
+                moveResult = state.moveResult ?: MoveResult.SimpleMove,
+                promotion = null,
+                playerSwitched = true
+            )
         }
     }
 
