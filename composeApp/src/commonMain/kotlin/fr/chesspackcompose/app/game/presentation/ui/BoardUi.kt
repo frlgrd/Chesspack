@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,18 +54,21 @@ fun BoardUi(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Divider()
         GameBannerUi(
             gameBanner = state.withesGameBanner,
             currentPlayer = state.currentPlayer,
             gameFinished = state.gameFinished,
             onEvent = onEvent
         )
+        Divider()
         GameBannerUi(
             gameBanner = state.blacksGameBanner,
             currentPlayer = state.currentPlayer,
             gameFinished = state.gameFinished,
             onEvent = onEvent
         )
+        Divider()
         Spacer(Modifier.height(50.dp))
         Box(
             modifier = Modifier
