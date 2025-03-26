@@ -39,7 +39,7 @@ class BoardImpl(
             state.movePiece(piece = piece, to = to, target = target)
         }
         piece.markAsMoved()
-        state = state.globalUpdate()
+        state = state.update()
         if (piece is Pawn && canBePromoted(piece)) {
             state = state.copy(promotion = Promotion(pawn = piece), moveResult = null)
             _state.update { state }
@@ -96,7 +96,7 @@ class BoardImpl(
             Promotion.Type.KNIGHT -> Knight(position = position, color = color)
         }
         state.pieces.add(promotedPiece)
-        state = state.globalUpdate()
+        state = state.update()
         _state.update {
             state.copy(
                 currentPlayer = it.currentPlayer.switch(),
@@ -116,7 +116,7 @@ class BoardImpl(
         }
     }
 
-    private fun Board.State.globalUpdate(): Board.State {
+    private fun Board.State.update(): Board.State {
         return updateCheckedKings().updateLegalMoves().updateWinner()
     }
 
