@@ -33,6 +33,13 @@ fun Timer(
 ) {
     var leftTime by remember { mutableStateOf(10 * 60 * 1000) }
     var step by remember { mutableStateOf(1000) }
+    val fontWeight = remember(currentPlayer) {
+        if (currentPlayer == gameBanner.pieceColor) {
+            FontWeight.ExtraBold
+        } else {
+            FontWeight.Normal
+        }
+    }
     val backgroundColor = remember(gameBanner.textColor, leftTime) {
         when {
             leftTime == 0 -> redBackgroundColor
@@ -62,7 +69,7 @@ fun Timer(
         text = leftTime.formattedLeftTime(),
         color = gameBanner.textColor,
         fontSize = 18.sp,
-        fontWeight = FontWeight.ExtraBold
+        fontWeight = fontWeight
     )
 }
 
