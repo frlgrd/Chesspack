@@ -20,7 +20,7 @@ value class Fen(
     private val fen: String = DEFAULT
 ) {
     companion object {
-        private const val DEFAULT = "r3k2r/pPpp1ppp/2nqbbn1/4p2Q/2B1P3/1NB2N2/P1PP1PPP/R3K2R"
+        private const val DEFAULT = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         private const val ROWS_SEPARATOR = '/'
         private const val ROOK = 'r'
         private const val KNIGHT = 'n'
@@ -34,7 +34,7 @@ value class Fen(
         val pieces = mutableSetOf<Piece>()
         fen.split(ROWS_SEPARATOR).forEachIndexed { y, row ->
             var x = 0
-            row.forEach { char ->
+            row.substringBefore(" ").forEach { char ->
                 if (char.isDigit()) {
                     x += char.digitToInt()
                 } else {
