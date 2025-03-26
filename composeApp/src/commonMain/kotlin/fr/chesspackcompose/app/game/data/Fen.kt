@@ -63,11 +63,15 @@ value class Fen(
 
     private fun setCastling(rook: Rook) {
         val config = fen.split(ROWS_SEPARATOR)[7].substringAfter(' ')
+        val isWhiteQueenRook = rook.position.x == 0 && rook.color == PieceColor.White
+        val isWhiteKinRook = rook.position.x == 7 && rook.color == PieceColor.White
+        val isBlackQueenRook = rook.position.x == 0 && rook.color == PieceColor.Black
+        val isBlackKinRook = rook.position.x == 7 && rook.color == PieceColor.Black
         when {
-            rook.position.x == 0 && rook.color == PieceColor.White && !config.contains('Q') -> rook.markAsMoved()
-            rook.position.x == 0 && rook.color == PieceColor.Black && !config.contains('q') -> rook.markAsMoved()
-            rook.position.x == 7 && rook.color == PieceColor.White && !config.contains('K') -> rook.markAsMoved()
-            rook.position.x == 7 && rook.color == PieceColor.Black && !config.contains('k') -> rook.markAsMoved()
+            isWhiteQueenRook && !config.contains('Q') -> rook.markAsMoved()
+            isWhiteKinRook && !config.contains('K') -> rook.markAsMoved()
+            isBlackQueenRook && !config.contains('q') -> rook.markAsMoved()
+            isBlackKinRook && !config.contains('k') -> rook.markAsMoved()
         }
     }
 }
