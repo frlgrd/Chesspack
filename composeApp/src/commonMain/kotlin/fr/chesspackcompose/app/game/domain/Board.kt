@@ -1,5 +1,6 @@
 package fr.chesspackcompose.app.game.domain
 
+import fr.chesspackcompose.app.game.domain.pieces.Pawn
 import fr.chesspackcompose.app.game.domain.pieces.Piece
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +18,7 @@ interface Board {
         val takenPieces: Map<PieceColor, MutableList<Piece>> = emptyMap(),
         val promotion: Promotion? = null,
         val winner: PieceColor? = null,
-        var playerSwitched: Boolean = false
+        val playerSwitched: Boolean = false,
+        var enPassant: Pawn? = null
     )
 }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlin.math.abs
 
 class BoardImpl(
     private val fen: Fen
@@ -94,6 +95,7 @@ class BoardImpl(
         target: Piece?
     ): Board.State {
         pieces.removeAll { it.position == to }
+        val originalPosition = piece.position
         piece.position = to
         return if (target != null) {
             val takenPieces = takenPieces.toMutableMap()
@@ -104,8 +106,17 @@ class BoardImpl(
             }
             copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
         } else {
-            copy(moveResult = MoveResult.SimpleMove)
+            copy(
+                moveResult = MoveResult.SimpleMove,
+                enPassant = enPassant(piece = piece, originalPosition = originalPosition)
+            )
         }
+    }
+
+    private fun enPassant(piece: Piece, originalPosition: PiecePosition): Pawn? {
+        if (piece !is Pawn) return null
+        val distance = abs(originalPosition.y - piece.position.y)
+        return if (distance == 2) piece else null
     }
 
     private fun Board.State.update(): Board.State {
