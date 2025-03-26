@@ -11,6 +11,7 @@ import fr.chesspackcompose.app.game.domain.pieces.Piece
 import fr.chesspackcompose.app.game.domain.pieces.Queen
 import fr.chesspackcompose.app.game.domain.pieces.Rook
 import kotlin.jvm.JvmInline
+import kotlin.reflect.KClass
 
 /**
  * FEN (Forsyth-Edwards Notation) represents the board state. See more @see [here](https://fr.wikipedia.org/wiki/Notation_Forsyth-Edwards)
@@ -22,7 +23,7 @@ value class Fen(
 ) {
     companion object {
         private const val DEFAULT =
-            "r3k2r/p1pppppp/1pbq2n1/5b2/3Q1B2/1BN1P1N1/PPPP1PPP/R3K2R w KQkq - 0 1\n"
+            "rnbqkbnr/ppp2ppp/8/8/8/8/PPPPPPPP/RNB1KB1R w KQkq - 0 1\n"
         private const val ROWS_SEPARATOR = '/'
         private const val ROOK = 'r'
         private const val KNIGHT = 'n'
@@ -38,7 +39,8 @@ value class Fen(
         return Board.State(
             pieces = pieces,
             currentPlayer = currentPlayer,
-            playerSwitched = currentPlayer == PieceColor.Black
+            playerSwitched = currentPlayer == PieceColor.Black,
+            takenPieces = resolveTakenPieces(pieces)
         )
     }
 
@@ -107,5 +109,69 @@ value class Fen(
         } else {
             PieceColor.Black
         }
+    }
+
+    private fun resolveTakenPieces(
+        pieces: Set<Piece>
+    ): Map<PieceColor, MutableList<Piece>> {
+
+        fun getTakenPieces(pieces: Set<Piece>, color: PieceColor): MutableList<Piece> {
+            fun missingPieces(
+                pieces: Set<Piece>,
+                type: KClass<out Piece>,
+                expectedCount: Int,
+                createPieces: () -> Piece
+            ): MutableList<Piece> {
+                val count = pieces.count { type.isInstance(it) }
+                val difference = expectedCount - count
+                val missing = mutableListOf<Piece>()
+                repeat(difference) {
+                    missing.add(createPieces())
+                }
+                return missing
+            }
+
+            val enemies = pieces.filter { it.color == color }.toMutableSet()
+            val takenPiecesPosition = PiecePosition(0, 0)
+            val takenPieces = missingPieces(
+                pieces = enemies,
+                type = Queen::class,
+                expectedCount = 1,
+                createPieces = { Queen(takenPiecesPosition, color = color) }) +
+                    missingPieces(
+                        pieces = enemies,
+                        type = Rook::class,
+                        expectedCount = 2,
+                        createPieces = {
+                            Rook(takenPiecesPosition, color = color)
+                        }) +
+                    missingPieces(
+                        pieces = enemies,
+                        type = Knight::class,
+                        expectedCount = 2,
+                        createPieces = {
+                            Knight(takenPiecesPosition, color = color)
+                        }) +
+                    missingPieces(
+                        pieces = enemies,
+                        type = Bishop::class,
+                        expectedCount = 2,
+                        createPieces = {
+                            Bishop(takenPiecesPosition, color = color)
+                        }) +
+                    missingPieces(
+                        pieces = enemies,
+                        type = Pawn::class,
+                        expectedCount = 8,
+                        createPieces = {
+                            Pawn(takenPiecesPosition, color = color)
+                        })
+            return takenPieces.toMutableList()
+        }
+
+        val takenPieces = mutableMapOf<PieceColor, MutableList<Piece>>()
+        takenPieces[PieceColor.White] = getTakenPieces(pieces = pieces, color = PieceColor.White)
+        takenPieces[PieceColor.Black] = getTakenPieces(pieces = pieces, color = PieceColor.Black)
+        return takenPieces
     }
 }
