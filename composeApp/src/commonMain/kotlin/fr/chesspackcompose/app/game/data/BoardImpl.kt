@@ -120,17 +120,15 @@ class BoardImpl(
     }
 
     private fun globalUpdate(boardState: BoardState): BoardState {
-        val checkingUpdate = updateCheckedKings(boardState)
-        val legalMoveUpdate = updateLegalMoves(checkingUpdate)
-        return updateWinner(legalMoveUpdate)
+        return boardState.updateCheckedKings().updateLegalMoves().updateWinner()
     }
 
-    private fun updateCheckedKings(boardState: BoardState): BoardState {
+    private fun BoardState.updateCheckedKings(): BoardState {
         var hasCheckedKing = false
-        val pieces = boardState.pieces.map { piece ->
+        val pieces = pieces.map { piece ->
             if (piece is King) {
                 val opponentsMoves = opponentsMoves(
-                    pieces = boardState.pieces,
+                    pieces = pieces,
                     pieceColor = piece.color
                 )
                 val isChecked = opponentsMoves.contains(piece.position)
@@ -141,34 +139,33 @@ class BoardImpl(
             }
             piece
         }
-        return boardState.copy(
+        return copy(
             pieces = pieces.toMutableSet(),
-            moveResult = if (hasCheckedKing) MoveResult.Check else boardState.moveResult
+            moveResult = if (hasCheckedKing) MoveResult.Check else moveResult
         )
     }
 
-    private fun updateLegalMoves(boardState: BoardState): BoardState {
-        return boardState.copy(
-            pieces = boardState.pieces
-                .map { it.updateLegalMoves(moves = legalMoves(it)) }
-                .toMutableSet()
+    private fun BoardState.updateLegalMoves(): BoardState {
+        return copy(pieces = pieces
+            .map { it.updateLegalMoves(moves = legalMoves(it)) }
+            .toMutableSet()
         )
     }
 
-    private fun updateWinner(boardState: BoardState): BoardState {
-        val currentPlayerWon = boardState.pieces
-            .filter { it.color == boardState.currentPlayer.switch() }
+    private fun BoardState.updateWinner(): BoardState {
+        val currentPlayerWon = pieces
+            .filter { it.color == currentPlayer.switch() }
             .map(Piece::legalMoves)
             .flatten()
             .isEmpty()
         return if (currentPlayerWon) {
-            boardState.copy(
-                winner = boardState.currentPlayer,
+            copy(
+                winner = currentPlayer,
                 moveResult = MoveResult.Checkmate,
-                playerSwitched = if (currentPlayerWon) false else boardState.playerSwitched
+                playerSwitched = if (currentPlayerWon) false else playerSwitched
             )
         } else {
-            boardState
+            this
         }
     }
 
