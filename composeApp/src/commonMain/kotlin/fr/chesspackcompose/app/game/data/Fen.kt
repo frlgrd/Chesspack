@@ -120,13 +120,12 @@ value class Fen(
                 pieces: Set<Piece>,
                 type: KClass<out Piece>,
                 expectedCount: Int,
-                createPieces: () -> Piece
+                createMissingPiece: () -> Piece
             ): MutableList<Piece> {
-                val count = pieces.count { type.isInstance(it) }
-                val difference = expectedCount - count
+                val actualCount = pieces.count { type.isInstance(it) }
                 val missing = mutableListOf<Piece>()
-                repeat(difference) {
-                    missing.add(createPieces())
+                repeat(expectedCount - actualCount) {
+                    missing.add(createMissingPiece())
                 }
                 return missing
             }
@@ -137,33 +136,33 @@ value class Fen(
                 pieces = enemies,
                 type = Queen::class,
                 expectedCount = 1,
-                createPieces = { Queen(takenPiecesPosition, color = color) }) +
+                createMissingPiece = { Queen(takenPiecesPosition, color = color) }) +
                     missingPieces(
                         pieces = enemies,
                         type = Rook::class,
                         expectedCount = 2,
-                        createPieces = {
+                        createMissingPiece = {
                             Rook(takenPiecesPosition, color = color)
                         }) +
                     missingPieces(
                         pieces = enemies,
                         type = Knight::class,
                         expectedCount = 2,
-                        createPieces = {
+                        createMissingPiece = {
                             Knight(takenPiecesPosition, color = color)
                         }) +
                     missingPieces(
                         pieces = enemies,
                         type = Bishop::class,
                         expectedCount = 2,
-                        createPieces = {
+                        createMissingPiece = {
                             Bishop(takenPiecesPosition, color = color)
                         }) +
                     missingPieces(
                         pieces = enemies,
                         type = Pawn::class,
                         expectedCount = 8,
-                        createPieces = {
+                        createMissingPiece = {
                             Pawn(takenPiecesPosition, color = color)
                         })
             return takenPieces.toMutableList()
