@@ -25,7 +25,6 @@ class GameViewModel(
 
     init {
         board.state.onEach { boardState ->
-            println(boardState.pieces.map { it.legalMoves })
             _state.update {
                 it.copy(
                     cells = boardMapper.mapPieces(boardState),
