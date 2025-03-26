@@ -1,7 +1,6 @@
 package fr.chesspackcompose.app.game.data
 
 import fr.chesspackcompose.app.game.domain.Board
-import fr.chesspackcompose.app.game.domain.BoardState
 import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
@@ -22,8 +21,8 @@ class BoardImpl(
     private val fen: Fen
 ) : Board {
 
-    private val _state = MutableStateFlow(BoardState())
-    override val state: Flow<BoardState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(Board.State())
+    override val state: Flow<Board.State> = _state.asStateFlow()
 
     init {
         reset()
@@ -55,11 +54,11 @@ class BoardImpl(
         }
     }
 
-    private fun BoardState.movePiece(
+    private fun Board.State.movePiece(
         piece: Piece,
         to: PiecePosition,
         target: Piece?
-    ): BoardState {
+    ): Board.State {
         pieces.removeAll { it.position == to }
         piece.position = to
         return if (target != null) {
@@ -109,7 +108,7 @@ class BoardImpl(
     }
 
     override fun reset() {
-        _state.value = BoardState(pieces = fen.toPieces().toMutableSet())
+        _state.value = Board.State(pieces = fen.toPieces().toMutableSet())
         _state.update {
             it.copy(pieces = it.pieces.map { piece ->
                 piece.updateLegalMoves(legalMoves(piece))
@@ -117,11 +116,11 @@ class BoardImpl(
         }
     }
 
-    private fun BoardState.globalUpdate(): BoardState {
+    private fun Board.State.globalUpdate(): Board.State {
         return updateCheckedKings().updateLegalMoves().updateWinner()
     }
 
-    private fun BoardState.updateCheckedKings(): BoardState {
+    private fun Board.State.updateCheckedKings(): Board.State {
         var hasCheckedKing = false
         val pieces = pieces.map { piece ->
             if (piece is King) {
@@ -143,14 +142,14 @@ class BoardImpl(
         )
     }
 
-    private fun BoardState.updateLegalMoves(): BoardState {
+    private fun Board.State.updateLegalMoves(): Board.State {
         return copy(pieces = pieces
             .map { it.updateLegalMoves(moves = legalMoves(it)) }
             .toMutableSet()
         )
     }
 
-    private fun BoardState.updateWinner(): BoardState {
+    private fun Board.State.updateWinner(): Board.State {
         val currentPlayerWon = pieces
             .filter { it.color == currentPlayer.switch() }
             .map(Piece::legalMoves)
@@ -220,10 +219,10 @@ class BoardImpl(
         return piecesBetween.isEmpty()
     }
 
-    private fun BoardState.castling(
+    private fun Board.State.castling(
         king: Piece,
         rook: Piece
-    ): BoardState {
+    ): Board.State {
         if (king.position.x < rook.position.x) {
             king.position = king.position.copy(x = king.position.x + 2)
             rook.position = rook.position.copy(x = king.position.x - 1)

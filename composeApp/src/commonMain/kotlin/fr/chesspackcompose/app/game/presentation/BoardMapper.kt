@@ -14,7 +14,7 @@ import chesspackcompose.composeapp.generated.resources.piece_queen_side_black
 import chesspackcompose.composeapp.generated.resources.piece_queen_side_white
 import chesspackcompose.composeapp.generated.resources.piece_rook_side_black
 import chesspackcompose.composeapp.generated.resources.piece_rook_side_white
-import fr.chesspackcompose.app.game.domain.BoardState
+import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
@@ -29,7 +29,7 @@ import org.jetbrains.compose.resources.DrawableResource
 
 class BoardMapper {
     fun mapPieces(
-        boardState: BoardState
+        boardState: Board.State
     ): List<CellUIModel> {
         val result = mutableListOf<CellUIModel>()
         (0..7).forEach { x ->
@@ -86,7 +86,11 @@ class BoardMapper {
         return PromotionUiModel(items = promotion.pawn.promotionItem)
     }
 
-    private fun squareColor(boardState: BoardState, piece: Piece?, position: PiecePosition): Color {
+    private fun squareColor(
+        boardState: Board.State,
+        piece: Piece?,
+        position: PiecePosition
+    ): Color {
         return when {
             boardState.winner != null && piece is King -> if (piece.color == boardState.winner) winnerColor else looserColor
             else -> if ((position.x + position.y) % 2 == 0) darkColor else lightColor
