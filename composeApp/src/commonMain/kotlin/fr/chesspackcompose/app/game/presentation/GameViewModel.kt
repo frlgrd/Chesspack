@@ -94,7 +94,7 @@ class GameViewModel(
 
             is GameUiEvent.ResetRequested -> {
                 board.reset()
-                _state.update { it.copy(boardRotation = 0F, canReset = false) }
+                _state.update { it.copy(canReset = false) }
             }
 
             is GameUiEvent.TimerFinished -> {}

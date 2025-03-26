@@ -97,20 +97,44 @@ class BoardImpl(
         pieces.removeAll { it.position == to }
         val originalPosition = piece.position
         piece.position = to
-        return if (target != null) {
-            val takenPieces = takenPieces.toMutableMap()
-            if (takenPieces.containsKey(target.color)) {
-                takenPieces[target.color]!!.add(target)
-            } else {
-                takenPieces[target.color] = mutableListOf(target)
+        return when {
+            target != null -> {
+                pieceTaken(target = target)
             }
-            copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
-        } else {
-            copy(
+
+            isEnPassant(
+                piece = piece,
+                enPassant = enPassant
+            ) -> {
+                pieces.removeAll { it.position == enPassant?.position }
+                pieceTaken(target = enPassant)
+            }
+
+            else -> copy(
                 moveResult = MoveResult.SimpleMove,
                 enPassant = enPassant(piece = piece, originalPosition = originalPosition)
             )
         }
+    }
+
+    private fun Board.State.pieceTaken(target: Piece?): Board.State {
+        target ?: return this
+        val takenPieces = takenPieces.toMutableMap()
+        if (takenPieces.containsKey(target.color)) {
+            takenPieces[target.color]!!.add(target)
+        } else {
+            takenPieces[target.color] = mutableListOf(target)
+        }
+        return copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
+    }
+
+    private fun isEnPassant(piece: Piece, enPassant: Pawn?): Boolean {
+        enPassant ?: return false
+        if (piece !is Pawn) return false
+        if (piece.color == enPassant.color) return false
+        if (piece.position.x != enPassant.position.x) return false
+        val direction = if (piece.color == PieceColor.White) -1 else 1
+        return piece.position.y == enPassant.position.y + direction
     }
 
     private fun enPassant(piece: Piece, originalPosition: PiecePosition): Pawn? {
