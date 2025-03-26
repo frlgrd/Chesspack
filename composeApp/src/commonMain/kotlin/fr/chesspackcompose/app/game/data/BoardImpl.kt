@@ -54,26 +54,6 @@ class BoardImpl(
         }
     }
 
-    private fun Board.State.movePiece(
-        piece: Piece,
-        to: PiecePosition,
-        target: Piece?
-    ): Board.State {
-        pieces.removeAll { it.position == to }
-        piece.position = to
-        return if (target != null) {
-            val takenPieces = takenPieces.toMutableMap()
-            if (takenPieces.containsKey(target.color)) {
-                takenPieces[target.color]!!.add(target)
-            } else {
-                takenPieces[target.color] = mutableListOf(target)
-            }
-            copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
-        } else {
-            copy(moveResult = MoveResult.SimpleMove)
-        }
-    }
-
     override fun legalMoves(position: PiecePosition): List<PiecePosition> {
         return _state.value.pieces.find { it.position == position }?.legalMoves.orEmpty()
     }
@@ -109,6 +89,26 @@ class BoardImpl(
             it.copy(pieces = it.pieces.map { piece ->
                 piece.updateLegalMoves(legalMoves(piece))
             }.toMutableSet())
+        }
+    }
+
+    private fun Board.State.movePiece(
+        piece: Piece,
+        to: PiecePosition,
+        target: Piece?
+    ): Board.State {
+        pieces.removeAll { it.position == to }
+        piece.position = to
+        return if (target != null) {
+            val takenPieces = takenPieces.toMutableMap()
+            if (takenPieces.containsKey(target.color)) {
+                takenPieces[target.color]!!.add(target)
+            } else {
+                takenPieces[target.color] = mutableListOf(target)
+            }
+            copy(takenPieces = takenPieces, moveResult = MoveResult.Capture)
+        } else {
+            copy(moveResult = MoveResult.SimpleMove)
         }
     }
 
