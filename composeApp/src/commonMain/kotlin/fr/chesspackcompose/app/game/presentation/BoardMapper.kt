@@ -18,6 +18,8 @@ import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
+import fr.chesspackcompose.app.game.domain.pgnPositionX
+import fr.chesspackcompose.app.game.domain.pgnPositionY
 import fr.chesspackcompose.app.game.domain.pieces.Bishop
 import fr.chesspackcompose.app.game.domain.pieces.King
 import fr.chesspackcompose.app.game.domain.pieces.Knight
@@ -45,7 +47,8 @@ class BoardMapper {
                     ),
                     moveEnabled = boardState.winner == null && boardState.currentPlayer == piece?.color,
                     pieceInfo = piece.toPieceUiInfo(),
-                    isChecked = boardState.winner == null && piece is King && piece.isChecked
+                    isChecked = boardState.winner == null && piece is King && piece.isChecked,
+                    coordinateUI = position.toCoordinatesUI(currentPlayer = boardState.currentPlayer)
                 )
                 result.add(cellUIModel)
             }
@@ -113,6 +116,22 @@ class BoardMapper {
             drawableResource = drawableResource,
             legalMoves = legalMoves
         )
+    }
+
+    private fun PiecePosition.toCoordinatesUI(
+        currentPlayer: PieceColor
+    ): CoordinateUI? {
+        val xLimit = when (currentPlayer) {
+            PieceColor.Black -> 7
+            PieceColor.White -> 0
+        }
+        val yLimit = 7 - xLimit
+        val xCoordinate = if (xLimit == x) pgnPositionX else null
+        val yCoordinate = if (yLimit == y) pgnPositionY else null
+
+        if (xCoordinate == null && yCoordinate == null) return null
+        val color = if ((x + y) % 2 == 0) lightColor else darkColor
+        return CoordinateUI(color = color, x = xCoordinate, y = yCoordinate)
     }
 
     private val Piece.takenPieceOrder: Int

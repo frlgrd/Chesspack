@@ -6,9 +6,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,20 +18,25 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import fr.chesspackcompose.app.core.ui.conditional
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.presentation.CellUIModel
+import fr.chesspackcompose.app.game.presentation.CoordinateUI
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import org.jetbrains.compose.resources.painterResource
 
@@ -83,7 +90,11 @@ fun BoardCellUi(
                     }
                 }
             }
-    )
+    ) {
+        if (cell.coordinateUI != null) {
+            CoordinatesUI(coordinateUI = cell.coordinateUI, rotation = rotation)
+        }
+    }
     if (cell.pieceInfo != null) {
         var dragX by remember { mutableIntStateOf(0) }
         var dragY by remember { mutableIntStateOf(0) }
@@ -146,4 +157,43 @@ fun BoardCellUi(
             contentDescription = cell.contentDescription
         )
     }
+}
+
+@Composable
+fun BoxScope.CoordinatesUI(
+    coordinateUI: CoordinateUI,
+    rotation: Float
+) {
+    val yAlign = if (rotation == 0F) Alignment.BottomEnd else Alignment.TopStart
+    val xAlign = if (rotation == 0F) Alignment.TopStart else Alignment.BottomEnd
+
+    if (coordinateUI.y != null) {
+        CoordinatesUILabel(
+            modifier = Modifier
+                .align(yAlign)
+                .rotate(rotation),
+            text = coordinateUI.y,
+            color = coordinateUI.color,
+        )
+    }
+    if (coordinateUI.x != null) {
+        CoordinatesUILabel(
+            modifier = Modifier
+                .align(xAlign)
+                .rotate(rotation),
+            text = coordinateUI.x,
+            color = coordinateUI.color
+        )
+    }
+}
+
+@Composable
+fun CoordinatesUILabel(modifier: Modifier = Modifier, text: String, color: Color) {
+    Text(
+        modifier = modifier.padding(1.dp).zIndex(2F),
+        text = text,
+        color = color,
+        fontWeight = FontWeight.Bold,
+        lineHeight = 9.sp
+    )
 }

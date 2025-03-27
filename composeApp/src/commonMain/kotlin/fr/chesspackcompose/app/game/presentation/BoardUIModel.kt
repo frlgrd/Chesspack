@@ -17,7 +17,8 @@ data class CellUIModel(
     val moveEnabled: Boolean = true,
     val markAsLegalMove: Boolean = false,
     val markAsHovered: Boolean = false,
-    val pieceInfo: PieceInfo? = null
+    val pieceInfo: PieceInfo? = null,
+    val coordinateUI: CoordinateUI? = null
 ) {
     private val originalPosition = originalPositionColorWithAlpha.compositeOver(squareColor)
     private val hoverColor = hoverColorWithAlpha.compositeOver(squareColor)
@@ -58,4 +59,10 @@ data class PromotionItem(
     val type: Promotion.Type,
     val color: PieceColor,
     val position: PiecePosition
+)
+
+data class CoordinateUI(
+    val color: Color,
+    val x: String?,
+    val y: String?
 )
