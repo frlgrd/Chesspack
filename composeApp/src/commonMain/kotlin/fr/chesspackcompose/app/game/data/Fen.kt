@@ -135,35 +135,33 @@ value class Fen(
                 pieces = enemies,
                 type = Queen::class,
                 expectedCount = 1,
-                createMissingPiece = { Queen(takenPiecesPosition, color = color) }) +
-                    missingPieces(
-                        pieces = enemies,
-                        type = Rook::class,
-                        expectedCount = 2,
-                        createMissingPiece = {
-                            Rook(takenPiecesPosition, color = color)
-                        }) +
-                    missingPieces(
-                        pieces = enemies,
-                        type = Knight::class,
-                        expectedCount = 2,
-                        createMissingPiece = {
-                            Knight(takenPiecesPosition, color = color)
-                        }) +
-                    missingPieces(
-                        pieces = enemies,
-                        type = Bishop::class,
-                        expectedCount = 2,
-                        createMissingPiece = {
-                            Bishop(takenPiecesPosition, color = color)
-                        }) +
-                    missingPieces(
-                        pieces = enemies,
-                        type = Pawn::class,
-                        expectedCount = 8,
-                        createMissingPiece = {
-                            Pawn(takenPiecesPosition, color = color)
-                        })
+                createMissingPiece = {
+                    Queen(position = takenPiecesPosition, color = color)
+                }) + missingPieces(
+                pieces = enemies,
+                type = Rook::class,
+                expectedCount = 2,
+                createMissingPiece = {
+                    Rook(position = takenPiecesPosition, color = color)
+                }) + missingPieces(
+                pieces = enemies,
+                type = Knight::class,
+                expectedCount = 2,
+                createMissingPiece = {
+                    Knight(position = takenPiecesPosition, color = color)
+                }) + missingPieces(
+                pieces = enemies,
+                type = Bishop::class,
+                expectedCount = 2,
+                createMissingPiece = {
+                    Bishop(position = takenPiecesPosition, color = color)
+                }) + missingPieces(
+                pieces = enemies,
+                type = Pawn::class,
+                expectedCount = 8,
+                createMissingPiece = {
+                    Pawn(position = takenPiecesPosition, color = color)
+                })
             return takenPieces.toMutableList()
         }
 
