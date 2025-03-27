@@ -292,22 +292,46 @@ class BoardImpl(
         piece: Piece,
         enPassant: Pawn?,
     ): List<PiecePosition> {
-        val pseudoLegalMoves = mutableListOf<PiecePosition>()
+        val moves = mutableListOf<PiecePosition>()
         when (piece) {
-            is Bishop -> diagonalMoves(pieces = pieces, piece = piece, moves = pseudoLegalMoves)
-            is King -> kingMoves(pieces = pieces, king = piece, moves = pseudoLegalMoves)
-            is Knight -> knightMoves(pieces = pieces, piece = piece, moves = pseudoLegalMoves)
+            is Bishop -> diagonalMoves(
+                pieces = pieces,
+                piece = piece,
+                moves = moves
+            )
+
+            is King -> kingMoves(
+                pieces = pieces,
+                king = piece,
+                moves = moves
+            )
+
+            is Knight -> knightMoves(
+                pieces = pieces,
+                piece = piece,
+                moves = moves
+            )
+
             is Pawn -> pawnMoves(
                 pieces = pieces,
                 pawn = piece,
-                moves = pseudoLegalMoves,
+                moves = moves,
                 enPassant = enPassant
             )
 
-            is Queen -> queenMoves(pieces = pieces, piece = piece, moves = pseudoLegalMoves)
-            is Rook -> straightMoves(pieces = pieces, piece = piece, moves = pseudoLegalMoves)
+            is Queen -> queenMoves(
+                pieces = pieces,
+                piece = piece,
+                moves = moves
+            )
+
+            is Rook -> straightMoves(
+                pieces = pieces,
+                piece = piece,
+                moves = moves
+            )
         }
-        return pseudoLegalMoves.distinct()
+        return moves.distinct()
     }
 
     private fun queenMoves(
