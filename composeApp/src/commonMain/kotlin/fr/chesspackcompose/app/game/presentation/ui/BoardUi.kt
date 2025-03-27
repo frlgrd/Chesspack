@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,17 +46,15 @@ fun BoardUi(
         PromotionDialog(promotion = state.promotionUiModel, onEvent = onEvent)
     }
     Column(
-        modifier = modifier.fillMaxSize()
-            .padding(bottom = 20.dp),
+        modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Bottom
+        verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
                 .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
                 .aspectRatio(1F)
                 .graphicsLayer { rotationZ = currentRotation }
-                .weight(1F)
         ) {
             state.cells.forEach { cell ->
                 BoardCellUi(
