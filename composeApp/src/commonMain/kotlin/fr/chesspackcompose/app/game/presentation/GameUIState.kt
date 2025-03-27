@@ -8,7 +8,6 @@ data class GameUIState(
     val withesGameBanner: GameBanner? = null,
     val blacksGameBanner: GameBanner? = null,
     val promotionUiModel: PromotionUiModel? = null,
-    val canReset: Boolean = false,
     val currentPlayer: PieceColor = PieceColor.White,
     val winner: PieceColor? = null
 ) {

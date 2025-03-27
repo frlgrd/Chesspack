@@ -25,8 +25,8 @@ class GameViewModel(
 
     init {
         board.state.onEach { boardState ->
-            _state.update {
-                it.copy(
+            _state.update { ui ->
+                ui.copy(
                     cells = boardMapper.mapPieces(boardState),
                     withesGameBanner = boardMapper.mapBanner(
                         color = PieceColor.White,
@@ -92,17 +92,13 @@ class GameViewModel(
                 type = event.promotionItem.type
             )
 
-            is GameUiEvent.ResetRequested -> {
-                board.reset()
-                _state.update { it.copy(canReset = false) }
-            }
+            is GameUiEvent.ResetRequested -> board.reset()
 
             is GameUiEvent.TimerFinished -> {}
         }
     }
 
     private suspend fun playerSwitched() {
-        _state.update { it.copy(canReset = true) }
         delay(300)
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
     }

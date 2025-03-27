@@ -42,13 +42,11 @@ fun App() {
                     backgroundColor = Color.DarkGray,
                     contentColor = Color.White,
                     actions = {
-                        if (state.canReset) {
-                            IconButton(onClick = { viewModel.onEvent(GameUiEvent.ResetRequested) }) {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh,
-                                    contentDescription = stringResource(Res.string.reset)
-                                )
-                            }
+                        IconButton(onClick = { viewModel.onEvent(GameUiEvent.ResetRequested) }) {
+                            Icon(
+                                imageVector = Icons.Default.Refresh,
+                                contentDescription = stringResource(Res.string.reset)
+                            )
                         }
                     },
                     title = { Text(stringResource(Res.string.app_name)) }
