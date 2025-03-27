@@ -30,6 +30,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import chesspackcompose.composeapp.generated.resources.Res
 import chesspackcompose.composeapp.generated.resources.app_name
 import chesspackcompose.composeapp.generated.resources.reset
+import chesspackcompose.composeapp.generated.resources.rotate_mode_default
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import fr.chesspackcompose.app.game.presentation.GameViewModel
 import fr.chesspackcompose.app.game.presentation.ui.BoardUi
@@ -78,7 +79,7 @@ fun App() {
                                         onCheckedChange = null
                                     )
                                     Spacer(Modifier.width(16.dp))
-                                    Text("Side by side")
+                                    Text(text = stringResource(Res.string.rotate_mode_default))
                                 }
                             }
                         }
