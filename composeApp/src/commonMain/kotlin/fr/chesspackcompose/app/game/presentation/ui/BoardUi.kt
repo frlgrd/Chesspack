@@ -36,7 +36,7 @@ fun BoardUi(
     LaunchedEffect(state.boardRotation) {
         rotation.animateTo(
             targetValue = state.boardRotation,
-            animationSpec = tween(durationMillis = 700)
+            animationSpec = tween()
         ) {
             currentRotation = value
         }
