@@ -66,3 +66,12 @@ data class CoordinateUI(
     val x: String?,
     val y: String?
 )
+
+enum class RotateMode {
+    SideBySide, FaceToFace;
+
+    fun switch(): RotateMode = when (this) {
+        SideBySide -> FaceToFace
+        FaceToFace -> SideBySide
+    }
+}

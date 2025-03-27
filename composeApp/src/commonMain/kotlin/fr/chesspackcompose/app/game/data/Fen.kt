@@ -32,13 +32,14 @@ value class Fen(
         private const val PAWN = 'p'
     }
 
-    fun toBoardState(): Board.State {
+    fun toBoardState(currentBoardState: Board.State): Board.State {
         val pieces = resolvePieces()
         val currentPlayer = resolvePlayer()
+        val playerSwitched = currentPlayer != currentBoardState.currentPlayer
         return Board.State(
             pieces = pieces,
             currentPlayer = currentPlayer,
-            playerSwitched = currentPlayer == PieceColor.Black,
+            playerSwitched = playerSwitched,
             takenPieces = resolveTakenPieces(pieces = pieces)
         )
     }

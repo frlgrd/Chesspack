@@ -11,4 +11,5 @@ sealed interface GameUiEvent {
     data class OnPromotion(val promotionItem: PromotionItem) : GameUiEvent
     data object ResetRequested : GameUiEvent
     data class TimerFinished(val pieceColor: PieceColor) : GameUiEvent
+    data object SwitchRotateMode : GameUiEvent
 }

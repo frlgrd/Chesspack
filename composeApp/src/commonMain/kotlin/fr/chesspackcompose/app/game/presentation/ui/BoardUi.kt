@@ -14,7 +14,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -47,14 +46,15 @@ fun BoardUi(
     }
     Column(
         modifier = modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
                 .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
                 .aspectRatio(1F)
-                .graphicsLayer { rotationZ = currentRotation }
+                .graphicsLayer {
+                    if (state.sideBySide) rotationZ = currentRotation
+                }
         ) {
             state.cells.forEach { cell ->
                 BoardCellUi(

@@ -9,7 +9,9 @@ data class GameUIState(
     val blacksGameBanner: GameBanner? = null,
     val promotionUiModel: PromotionUiModel? = null,
     val currentPlayer: PieceColor = PieceColor.White,
-    val winner: PieceColor? = null
+    val winner: PieceColor? = null,
+    val rotateMode: RotateMode = RotateMode.SideBySide
 ) {
     val gameFinished: Boolean get() = winner != null
+    val sideBySide: Boolean get() = rotateMode == RotateMode.SideBySide
 }
