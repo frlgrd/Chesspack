@@ -90,11 +90,4 @@ fun App() {
         }
     }
 }
-/*
-Row(verticalAlignment = Alignment.CenterVertically) {
-    Checkbox(
-        checked = state.sideBySide,
-        onCheckedChange = { onEvent(GameUiEvent.SwitchRotateMode) })
-    Text("Side by side", color = Color.White)
-}*/
 
