@@ -44,7 +44,8 @@ class BoardImpl(
         state = when {
             piece is Pawn && canBePromoted(piece) -> state.copy(
                 promotion = Promotion(pawn = piece),
-                moveResult = null
+                moveResult = null,
+                playerSwitched = false
             )
 
             else -> state.copy(
