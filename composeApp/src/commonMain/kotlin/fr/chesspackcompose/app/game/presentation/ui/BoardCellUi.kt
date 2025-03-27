@@ -113,7 +113,7 @@ fun BoardCellUi(
                 .offset(x = xLocation, y = yLocation)
                 .size(width = size, height = size)
                 .zIndex(if (isDragging) 2F else 1F)
-                .padding(3.dp)
+                .padding(5.dp)
                 .graphicsLayer {
                     translationY = dragOffset.y
                     translationX = dragOffset.x
@@ -190,10 +190,13 @@ fun BoxScope.CoordinatesUI(
 @Composable
 fun CoordinatesUILabel(modifier: Modifier = Modifier, text: String, color: Color) {
     Text(
-        modifier = modifier.padding(1.dp).zIndex(2F),
+        modifier = modifier.padding(start = 2.dp, end = 3.dp, top = 1.dp).zIndex(2F),
         text = text,
         color = color,
         fontWeight = FontWeight.Bold,
-        lineHeight = 9.sp
+        fontSize = coordinatesFontSize,
+        lineHeight = coordinatesFontSize
     )
 }
+
+private val coordinatesFontSize = 12.sp
