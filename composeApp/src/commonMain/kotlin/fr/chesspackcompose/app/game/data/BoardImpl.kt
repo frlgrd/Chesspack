@@ -488,7 +488,7 @@ class BoardImpl(
             direction = direction,
             moves = moves
         )
-        pawnEnPassantAttack(
+        pawnEnPassantMove(
             piece = pawn,
             enPassant = enPassant,
             direction = direction,
@@ -514,7 +514,7 @@ class BoardImpl(
         }
     }
 
-    private fun pawnEnPassantAttack(
+    private fun pawnEnPassantMove(
         piece: Piece,
         enPassant: Pawn?,
         direction: Int,
