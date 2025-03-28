@@ -190,7 +190,7 @@ fun BoxScope.CoordinatesUI(
 @Composable
 fun CoordinatesUILabel(modifier: Modifier = Modifier, text: String, color: Color) {
     Text(
-        modifier = modifier.padding(start = 2.dp, end = 3.dp, top = 1.dp).zIndex(2F),
+        modifier = modifier.padding(horizontal = 2.dp),
         text = text,
         color = color,
         fontWeight = FontWeight.Bold,
@@ -199,4 +199,4 @@ fun CoordinatesUILabel(modifier: Modifier = Modifier, text: String, color: Color
     )
 }
 
-private val coordinatesFontSize = 12.sp
+private val coordinatesFontSize = 13.sp
