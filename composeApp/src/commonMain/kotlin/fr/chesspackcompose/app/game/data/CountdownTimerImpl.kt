@@ -20,15 +20,19 @@ class CountdownTimerImpl : CountdownTimer {
     override var currentPlayer: PieceColor = PieceColor.White
     private var onGoing = false
 
+    companion object {
+        private const val SECOND_STEP = 1000L
+    }
+
     private var finished = false
-    private var step = 1000L
+    private var step = SECOND_STEP
 
     private var timerJob: Job? = null
 
     override fun init(duration: Duration) {
         _timeLeft.value = duration.inWholeMilliseconds
         finished = false
-        step = 1000L
+        step = SECOND_STEP
         if (timerJob != null) timerJob?.cancel()
         timerJob = CoroutineScope(Dispatchers.Default).launch { while (!finished) tick() }
     }
@@ -49,7 +53,7 @@ class CountdownTimerImpl : CountdownTimer {
         if (timeLeft - step < 0L) {
             finished = true
         }
-        if (timeLeft < 10 * 1000 && step == 1000L) {
+        if (timeLeft < 10 * SECOND_STEP && step == SECOND_STEP) {
             step = 100L
         }
     }
