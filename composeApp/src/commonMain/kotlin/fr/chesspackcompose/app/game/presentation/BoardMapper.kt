@@ -91,7 +91,7 @@ class BoardMapper {
 
     fun mapPromotion(promotion: Promotion?): PromotionUiModel? {
         promotion ?: return null
-        return PromotionUiModel(items = promotion.pawn.promotionItem)
+        return PromotionUiModel(items = promotion.pawn.promotions)
     }
 
     private fun squareColor(
@@ -177,7 +177,7 @@ class BoardMapper {
             }
         }
 
-    private val Piece.promotionItem: List<PromotionItem>
+    private val Piece.promotions: List<PromotionItem>
         get() = when (color) {
             PieceColor.Black -> listOf(
                 PromotionItem(
