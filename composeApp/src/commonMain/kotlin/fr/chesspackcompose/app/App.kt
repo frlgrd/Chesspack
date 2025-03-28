@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import chesspackcompose.composeapp.generated.resources.Res
-import chesspackcompose.composeapp.generated.resources.app_name
 import chesspackcompose.composeapp.generated.resources.reset
 import chesspackcompose.composeapp.generated.resources.rotate_mode_default
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
@@ -84,7 +83,7 @@ fun App() {
                             }
                         }
                     },
-                    title = { Text(stringResource(Res.string.app_name)) }
+                    title = { }
                 )
             }) {
             BoardUi(state = state, onEvent = viewModel::onEvent)

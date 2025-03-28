@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Chesspack</string>
     <string name="reset">Reset</string>
-    <string name="rotate_mode_default">Side by side</string>
+    <string name="rotate_mode_default">Jouer côté côté</string>
 </resources>
