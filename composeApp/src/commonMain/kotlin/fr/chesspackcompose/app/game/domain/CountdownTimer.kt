@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 
-val defaultTimer = 10.minutes
+val defaultTimerDuration = 10.minutes
 
 interface CountdownTimer {
     val timeLeft: Flow<Long>

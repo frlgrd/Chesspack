@@ -4,6 +4,7 @@ import fr.chesspackcompose.app.game.domain.CountdownTimer
 import fr.chesspackcompose.app.game.domain.PieceColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,9 +23,12 @@ class CountdownTimerImpl : CountdownTimer {
     private var finished = false
     private var step = 1000L
 
+    private var timerJob: Job? = null
+
     override fun init(duration: Duration) {
         _timeLeft.value = duration.inWholeMilliseconds
-        CoroutineScope(Dispatchers.Default).launch { while (!finished) tick() }
+        if (timerJob != null) timerJob?.cancel()
+        timerJob = CoroutineScope(Dispatchers.Default).launch { while (!finished) tick() }
     }
 
     override fun pause() {

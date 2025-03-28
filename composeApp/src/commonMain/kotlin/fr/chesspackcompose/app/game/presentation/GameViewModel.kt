@@ -8,7 +8,7 @@ import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.CountdownTimer
 import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
-import fr.chesspackcompose.app.game.domain.defaultTimer
+import fr.chesspackcompose.app.game.domain.defaultTimerDuration
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,7 +58,7 @@ class GameViewModel(
             if (boardState.playerSwitched) {
                 playerSwitched(currentPlayer = boardState.currentPlayer)
             }
-        }.onStart { intTimers(duration = defaultTimer) }.launchIn(viewModelScope)
+        }.onStart { intTimers() }.launchIn(viewModelScope)
     }
 
     override fun onCleared() {
@@ -103,7 +103,11 @@ class GameViewModel(
                 type = event.promotionItem.type
             )
 
-            is GameUiEvent.ResetRequested -> board.reset()
+            is GameUiEvent.ResetRequested -> {
+                board.reset()
+                intTimers()
+            }
+
             is GameUiEvent.SwitchRotateMode -> _state.update { it.copy(rotateMode = it.rotateMode.switch()) }
         }
     }
@@ -116,7 +120,8 @@ class GameViewModel(
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
     }
 
-    private fun intTimers(duration: Duration) {
+    private fun intTimers() {
+        val duration = defaultTimerDuration
         timers.entries.forEach { entry ->
             observeTimer(duration = duration, countdownTimer = entry.value, pieceColor = entry.key)
         }
