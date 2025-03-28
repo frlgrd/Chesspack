@@ -115,7 +115,7 @@ value class Fen(
         pieces: Set<Piece>
     ): Map<PieceColor, MutableList<Piece>> {
 
-        fun getTakenPieces(pieces: Set<Piece>, color: PieceColor): MutableList<Piece> {
+        fun buildTakenPieces(pieces: Set<Piece>, color: PieceColor): MutableList<Piece> {
             fun addTakenPieces(
                 pieces: List<Piece>,
                 type: KClass<out Piece>,
@@ -163,8 +163,8 @@ value class Fen(
         }
 
         val takenPieces = mutableMapOf<PieceColor, MutableList<Piece>>()
-        takenPieces[PieceColor.White] = getTakenPieces(pieces = pieces, color = PieceColor.White)
-        takenPieces[PieceColor.Black] = getTakenPieces(pieces = pieces, color = PieceColor.Black)
+        takenPieces[PieceColor.White] = buildTakenPieces(pieces = pieces, color = PieceColor.White)
+        takenPieces[PieceColor.Black] = buildTakenPieces(pieces = pieces, color = PieceColor.Black)
         return takenPieces
     }
 }
