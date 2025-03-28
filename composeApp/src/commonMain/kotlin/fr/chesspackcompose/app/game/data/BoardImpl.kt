@@ -50,7 +50,7 @@ class BoardImpl(
 
             else -> state.copy(
                 pieces = pieces,
-                currentPlayer = state.currentPlayer.switch(),
+                currentPlayer = if (state.winner == null) state.currentPlayer.switch() else state.currentPlayer,
                 playerSwitched = state.winner == null
             )
         }

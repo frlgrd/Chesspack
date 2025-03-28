@@ -58,6 +58,9 @@ class GameViewModel(
             if (boardState.playerSwitched) {
                 playerSwitched(currentPlayer = boardState.currentPlayer)
             }
+            if (boardState.winner != null) {
+                timers.values.forEach(CountdownTimer::pause)
+            }
         }.onStart { intTimers() }.launchIn(viewModelScope)
     }
 
