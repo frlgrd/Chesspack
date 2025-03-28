@@ -34,7 +34,11 @@ class CountdownTimerImpl : CountdownTimer {
         finished = false
         step = SECOND_STEP
         if (timerJob != null) timerJob?.cancel()
-        timerJob = CoroutineScope(Dispatchers.Default).launch { while (!finished) tick() }
+        timerJob = CoroutineScope(Dispatchers.Default).launch {
+            while (!finished) {
+                tick()
+            }
+        }
     }
 
     override fun pause() {
