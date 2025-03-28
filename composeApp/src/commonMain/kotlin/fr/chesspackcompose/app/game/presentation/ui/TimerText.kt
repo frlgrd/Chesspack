@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import fr.chesspackcompose.app.game.presentation.TimerUi
 
-
 @Composable
 fun TimerText(timerUi: TimerUi) {
     Text(
