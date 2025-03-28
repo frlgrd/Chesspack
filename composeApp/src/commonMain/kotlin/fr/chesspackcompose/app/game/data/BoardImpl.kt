@@ -87,7 +87,7 @@ class BoardImpl(
     }
 
     override fun reset() {
-        _state.value = fen.toBoardState(currentBoardState = _state.value).update()
+        _state.update { fen.toBoardState(currentBoardState = it).update() }
     }
 
     override fun timeout(pieceColor: PieceColor) {
