@@ -10,6 +10,7 @@ interface Board {
     fun legalMoves(position: PiecePosition): List<PiecePosition>
     fun promote(position: PiecePosition, color: PieceColor, type: Promotion.Type)
     fun reset()
+    fun timeout(pieceColor: PieceColor)
 
     data class State(
         val pieces: MutableSet<Piece> = mutableSetOf(),

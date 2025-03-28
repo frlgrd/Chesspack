@@ -93,7 +93,7 @@ class GameViewModel(
             )
 
             is GameUiEvent.ResetRequested -> board.reset()
-            is GameUiEvent.TimerFinished -> {}
+            is GameUiEvent.TimerFinished -> board.timeout(event.pieceColor)
             is GameUiEvent.SwitchRotateMode -> _state.update { it.copy(rotateMode = it.rotateMode.switch()) }
         }
     }

@@ -90,6 +90,16 @@ class BoardImpl(
         _state.value = fen.toBoardState(currentBoardState = _state.value).update()
     }
 
+    override fun timeout(pieceColor: PieceColor) {
+        _state.update {
+            it.copy(
+                winner = pieceColor.switch(),
+                playerSwitched = false,
+                moveResult = MoveResult.Checkmate
+            )
+        }
+    }
+
     private fun Board.State.movePiece(
         piece: Piece,
         to: PiecePosition,
