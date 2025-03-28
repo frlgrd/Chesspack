@@ -116,54 +116,50 @@ value class Fen(
     ): Map<PieceColor, MutableList<Piece>> {
 
         fun getTakenPieces(pieces: Set<Piece>, color: PieceColor): MutableList<Piece> {
-            fun missingPieces(
+            fun addTakenPieces(
                 pieces: List<Piece>,
                 type: KClass<out Piece>,
-                expectedCount: Int,
+                expected: Int,
+                takenPieces: MutableList<Piece>,
                 createMissingPiece: () -> Piece
-            ): MutableList<Piece> {
-                val actualCount = pieces.count(type::isInstance)
-                val missing = mutableListOf<Piece>()
-                repeat(expectedCount - actualCount) {
-                    missing.add(createMissingPiece())
-                }
-                return missing
+            ) = repeat(expected - pieces.count(type::isInstance)) {
+                takenPieces.add(createMissingPiece())
             }
 
             val enemies = pieces.filter { it.color == color }
             val takenPiecesPosition = PiecePosition(0, 0)
-            val takenPieces = missingPieces(
+            val takenPieces = mutableListOf<Piece>()
+            addTakenPieces(
                 pieces = enemies,
                 type = Queen::class,
-                expectedCount = 1,
-                createMissingPiece = {
-                    Queen(position = takenPiecesPosition, color = color)
-                }) + missingPieces(
+                expected = 1,
+                takenPieces = takenPieces,
+                createMissingPiece = { Queen(position = takenPiecesPosition, color = color) })
+            addTakenPieces(
                 pieces = enemies,
                 type = Rook::class,
-                expectedCount = 2,
-                createMissingPiece = {
-                    Rook(position = takenPiecesPosition, color = color)
-                }) + missingPieces(
+                expected = 2,
+                takenPieces = takenPieces,
+                createMissingPiece = { Rook(position = takenPiecesPosition, color = color) })
+            addTakenPieces(
                 pieces = enemies,
                 type = Knight::class,
-                expectedCount = 2,
-                createMissingPiece = {
-                    Knight(position = takenPiecesPosition, color = color)
-                }) + missingPieces(
+                expected = 2,
+                takenPieces = takenPieces,
+                createMissingPiece = { Knight(position = takenPiecesPosition, color = color) })
+            addTakenPieces(
                 pieces = enemies,
                 type = Bishop::class,
-                expectedCount = 2,
-                createMissingPiece = {
-                    Bishop(position = takenPiecesPosition, color = color)
-                }) + missingPieces(
+                expected = 2,
+                takenPieces = takenPieces,
+                createMissingPiece = { Bishop(position = takenPiecesPosition, color = color) })
+            addTakenPieces(
                 pieces = enemies,
                 type = Pawn::class,
-                expectedCount = 8,
-                createMissingPiece = {
-                    Pawn(position = takenPiecesPosition, color = color)
-                })
-            return takenPieces.toMutableList()
+                expected = 8,
+                takenPieces = takenPieces,
+                createMissingPiece = { Pawn(position = takenPiecesPosition, color = color) })
+            return takenPieces
         }
 
         val takenPieces = mutableMapOf<PieceColor, MutableList<Piece>>()
