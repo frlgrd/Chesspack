@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import chesspackcompose.composeapp.generated.resources.Res
 import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
+import fr.chesspackcompose.app.game.domain.CountdownTimer
 import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
-import fr.chesspackcompose.app.game.domain.Timer
 import fr.chesspackcompose.app.game.domain.defaultTimer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,15 +23,15 @@ class GameViewModel(
     private val board: Board,
     private val boardMapper: BoardMapper,
     private val soundEffectPlayer: SoundEffectPlayer,
-    whiteTimer: Timer,
-    blackTimer: Timer
+    whiteCountdownTimer: CountdownTimer,
+    blackCountdownTimer: CountdownTimer
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameUIState())
     val state = _state.asStateFlow()
 
     private val timers = mapOf(
-        PieceColor.White to whiteTimer,
-        PieceColor.Black to blackTimer,
+        PieceColor.White to whiteCountdownTimer,
+        PieceColor.Black to blackCountdownTimer,
     )
 
     init {
@@ -118,17 +118,21 @@ class GameViewModel(
 
     private fun intTimers(duration: Duration) {
         timers.entries.forEach { entry ->
-            observeTimer(duration = duration, timer = entry.value, pieceColor = entry.key)
+            observeTimer(duration = duration, countdownTimer = entry.value, pieceColor = entry.key)
         }
     }
 
-    private fun observeTimer(duration: Duration, timer: Timer, pieceColor: PieceColor) {
-        timer.init(duration)
-        timer.timeLeft.onEach { timeLeft ->
+    private fun observeTimer(
+        duration: Duration,
+        countdownTimer: CountdownTimer,
+        pieceColor: PieceColor
+    ) {
+        countdownTimer.init(duration)
+        countdownTimer.timeLeft.onEach { timeLeft ->
             val timerUi = boardMapper.mapTimer(
                 timeLeft = timeLeft,
                 timerPlayer = pieceColor,
-                currentPlayer = timer.currentPlayer
+                currentPlayer = countdownTimer.currentPlayer
             )
             val uiState = when (pieceColor) {
                 PieceColor.Black -> _state.value.copy(blackTimer = timerUi)
@@ -139,7 +143,7 @@ class GameViewModel(
                 board.timeout(pieceColor)
             }
         }.launchIn(viewModelScope)
-        if (pieceColor == PieceColor.White) timer.resume()
+        if (pieceColor == PieceColor.White) countdownTimer.resume()
     }
 
     @OptIn(ExperimentalResourceApi::class)

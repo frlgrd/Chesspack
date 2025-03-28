@@ -6,7 +6,7 @@ import kotlin.time.Duration.Companion.minutes
 
 val defaultTimer = 10.minutes
 
-interface Timer {
+interface CountdownTimer {
     val timeLeft: Flow<Long>
     var currentPlayer: PieceColor
     fun init(duration: Duration)

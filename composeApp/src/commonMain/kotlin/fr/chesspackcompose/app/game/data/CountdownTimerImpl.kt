@@ -1,7 +1,7 @@
 package fr.chesspackcompose.app.game.data
 
+import fr.chesspackcompose.app.game.domain.CountdownTimer
 import fr.chesspackcompose.app.game.domain.PieceColor
-import fr.chesspackcompose.app.game.domain.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 
-class TimerImpl : Timer {
+class CountdownTimerImpl : CountdownTimer {
 
     private val _timeLeft = MutableStateFlow(0L)
     override val timeLeft: Flow<Long> get() = _timeLeft.asStateFlow()
