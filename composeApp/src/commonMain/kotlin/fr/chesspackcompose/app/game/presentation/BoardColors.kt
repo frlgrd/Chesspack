@@ -10,3 +10,7 @@ val checkmatedColor = Color(red = 222, green = 102, blue = 89)
 
 val winnerColor = Color(red = 114, green = 232, blue = 51)
 val looserColor = Color(red = 252, green = 61, blue = 3)
+
+val timerDefaultBackgroundColor = Color.White.copy(alpha = 0.2F)
+val timerAlphaRedBackgroundColor = Color.Red.copy(alpha = 0.5F)
+val timerRedBackgroundColor = Color.Red

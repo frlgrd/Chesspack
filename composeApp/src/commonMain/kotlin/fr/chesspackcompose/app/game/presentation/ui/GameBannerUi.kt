@@ -14,19 +14,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.presentation.GameBanner
-import fr.chesspackcompose.app.game.presentation.GameUiEvent
 import fr.chesspackcompose.app.game.presentation.TakenPiece
+import fr.chesspackcompose.app.game.presentation.TimerUi
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun GameBannerUi(
     gameBanner: GameBanner?,
-    currentPlayer: PieceColor,
-    gameFinished: Boolean,
-    onEvent: (GameUiEvent) -> Unit
+    timerUi: TimerUi?
 ) {
     Row(
         modifier = Modifier
@@ -46,12 +43,9 @@ fun GameBannerUi(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-            Timer(
-                gameBanner = gameBanner,
-                currentPlayer = currentPlayer,
-                gameFinished = gameFinished,
-                onEvent = onEvent
-            )
+            if (timerUi != null) {
+                TimerText(timerUi = timerUi)
+            }
         }
     }
 }

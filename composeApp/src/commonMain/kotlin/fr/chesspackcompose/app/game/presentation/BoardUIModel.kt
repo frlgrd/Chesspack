@@ -3,9 +3,7 @@ package fr.chesspackcompose.app.game.presentation
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
-import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
-import fr.chesspackcompose.app.game.domain.Promotion
 import org.jetbrains.compose.resources.DrawableResource
 
 @Immutable
@@ -38,40 +36,8 @@ data class PieceInfo(
     val legalMoves: List<PiecePosition>
 )
 
-data class GameBanner(
-    val takenPieces: Map<DrawableResource, TakenPiece>,
-    val pieceColor: PieceColor,
-    val textColor: Color,
-    val advantageLabel: String
-)
-
-data class TakenPiece(
-    val order: Int,
-    val count: Int
-)
-
-data class PromotionUiModel(
-    val items: List<PromotionItem>
-)
-
-data class PromotionItem(
-    val drawableResource: DrawableResource,
-    val type: Promotion.Type,
-    val color: PieceColor,
-    val position: PiecePosition
-)
-
 data class CoordinateUI(
     val color: Color,
     val x: String?,
     val y: String?
 )
-
-enum class RotateMode {
-    SideBySide, FaceToFace;
-
-    fun switch(): RotateMode = when (this) {
-        SideBySide -> FaceToFace
-        FaceToFace -> SideBySide
-    }
-}

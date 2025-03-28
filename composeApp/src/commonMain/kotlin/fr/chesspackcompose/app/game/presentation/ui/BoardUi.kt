@@ -68,16 +68,12 @@ fun BoardUi(
         Divider()
         GameBannerUi(
             gameBanner = state.withesGameBanner,
-            currentPlayer = state.currentPlayer,
-            gameFinished = state.gameFinished,
-            onEvent = onEvent
+            timerUi = state.whiteTimer
         )
         Divider()
         GameBannerUi(
             gameBanner = state.blacksGameBanner,
-            currentPlayer = state.currentPlayer,
-            gameFinished = state.gameFinished,
-            onEvent = onEvent
+            timerUi = state.blackTimer
         )
         Divider()
     }

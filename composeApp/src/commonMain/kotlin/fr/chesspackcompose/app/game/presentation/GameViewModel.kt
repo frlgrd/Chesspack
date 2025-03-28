@@ -7,21 +7,32 @@ import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
+import fr.chesspackcompose.app.game.domain.Timer
+import fr.chesspackcompose.app.game.domain.defaultTimer
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import kotlin.time.Duration
 
 class GameViewModel(
     private val board: Board,
     private val boardMapper: BoardMapper,
-    private val soundEffectPlayer: SoundEffectPlayer
+    private val soundEffectPlayer: SoundEffectPlayer,
+    whiteTimer: Timer,
+    blackTimer: Timer
 ) : ViewModel() {
     private val _state = MutableStateFlow(GameUIState())
     val state = _state.asStateFlow()
+
+    private val timers = mapOf(
+        PieceColor.White to whiteTimer,
+        PieceColor.Black to blackTimer,
+    )
 
     init {
         board.state.onEach { boardState ->
@@ -45,9 +56,9 @@ class GameViewModel(
             }
             playSoundEffect(moveResult = boardState.moveResult)
             if (boardState.playerSwitched) {
-                playerSwitched()
+                playerSwitched(currentPlayer = boardState.currentPlayer)
             }
-        }.launchIn(viewModelScope)
+        }.onStart { intTimers(duration = defaultTimer) }.launchIn(viewModelScope)
     }
 
     override fun onCleared() {
@@ -93,14 +104,42 @@ class GameViewModel(
             )
 
             is GameUiEvent.ResetRequested -> board.reset()
-            is GameUiEvent.TimerFinished -> board.timeout(event.pieceColor)
             is GameUiEvent.SwitchRotateMode -> _state.update { it.copy(rotateMode = it.rotateMode.switch()) }
         }
     }
 
-    private suspend fun playerSwitched() {
+    private suspend fun playerSwitched(currentPlayer: PieceColor) {
+        timers.values.forEach { it.currentPlayer = currentPlayer }
+        timers[currentPlayer.switch()]?.pause()
         delay(300)
+        timers[currentPlayer]?.resume()
         _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
+    }
+
+    private fun intTimers(duration: Duration) {
+        timers.entries.forEach { entry ->
+            observeTimer(duration = duration, timer = entry.value, pieceColor = entry.key)
+        }
+    }
+
+    private fun observeTimer(duration: Duration, timer: Timer, pieceColor: PieceColor) {
+        timer.init(duration)
+        timer.timeLeft.onEach { timeLeft ->
+            val timerUi = boardMapper.mapTimer(
+                timeLeft = timeLeft,
+                timerPlayer = pieceColor,
+                currentPlayer = timer.currentPlayer
+            )
+            val uiState = when (pieceColor) {
+                PieceColor.Black -> _state.value.copy(blackTimer = timerUi)
+                PieceColor.White -> _state.value.copy(whiteTimer = timerUi)
+            }
+            _state.update { uiState }
+            if (timeLeft == 0L) {
+                board.timeout(pieceColor)
+            }
+        }.launchIn(viewModelScope)
+        if (pieceColor == PieceColor.White) timer.resume()
     }
 
     @OptIn(ExperimentalResourceApi::class)

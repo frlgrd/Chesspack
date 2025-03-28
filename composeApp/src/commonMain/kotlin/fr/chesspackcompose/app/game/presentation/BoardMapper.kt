@@ -1,6 +1,7 @@
 package fr.chesspackcompose.app.game.presentation
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import chesspackcompose.composeapp.generated.resources.Res
 import chesspackcompose.composeapp.generated.resources.piece_bishop_side_black
 import chesspackcompose.composeapp.generated.resources.piece_bishop_side_white
@@ -67,11 +68,10 @@ class BoardMapper {
         takenPieces: Map<PieceColor, List<Piece>>
     ): GameBanner {
         val advantage = buildAdvantageLabel(color = color, allPieces = allPieces)
-        val uiColor = if (color == PieceColor.White) Color.White else Color.Black
         val gameBanner = GameBanner(
             takenPieces = emptyMap(),
             pieceColor = color,
-            textColor = uiColor,
+            textColor = color.toUiColor,
             advantageLabel = advantage
         )
         val pieces = takenPieces[color.switch()] ?: return gameBanner
@@ -92,6 +92,19 @@ class BoardMapper {
     fun mapPromotion(promotion: Promotion?): PromotionUiModel? {
         promotion ?: return null
         return PromotionUiModel(items = promotion.pawn.promotions)
+    }
+
+    fun mapTimer(timeLeft: Long, timerPlayer: PieceColor, currentPlayer: PieceColor): TimerUi {
+        return TimerUi(
+            timeLeft = timeLeft.formattedLeftTime(),
+            backgroundColor = when {
+                timeLeft == 0L -> timerRedBackgroundColor
+                timeLeft < 60 * 1000 -> timerAlphaRedBackgroundColor
+                else -> timerDefaultBackgroundColor
+            },
+            timerFontWeight = if (currentPlayer == timerPlayer) FontWeight.ExtraBold else FontWeight.Normal,
+            textColor = timerPlayer.toUiColor
+        )
     }
 
     private fun squareColor(
@@ -124,12 +137,7 @@ class BoardMapper {
         boardState: Board.State,
         piece: Piece?,
     ): CoordinateUI? {
-        val currentPlayer = if (boardState.winner == null) {
-            boardState.currentPlayer
-        } else {
-            boardState.currentPlayer.switch()
-        }
-        val xLimit = when (currentPlayer) {
+        val xLimit = when (boardState.currentPlayer) {
             PieceColor.Black -> 7
             PieceColor.White -> 0
         }
@@ -233,4 +241,27 @@ class BoardMapper {
                 )
             )
         }
+
+
+    private fun Long.formattedLeftTime(): String {
+        val seconds = (this % 60000) / 1000
+        return if (this < 10 * 1000) {
+            val decaseconds = (this % 600) / 100
+            "${seconds.withDecimals()}:$decaseconds"
+        } else {
+            val minutes = (this / 60000)
+            "${minutes.withDecimals()}:${seconds.withDecimals()}"
+        }
+    }
+
+    private fun Long.withDecimals(): String {
+        return if (this < 10) {
+            "0$this"
+        } else {
+            toString()
+        }
+    }
+
+    private val PieceColor.toUiColor: Color get() = if (this == PieceColor.White) Color.White else Color.Black
+
 }
