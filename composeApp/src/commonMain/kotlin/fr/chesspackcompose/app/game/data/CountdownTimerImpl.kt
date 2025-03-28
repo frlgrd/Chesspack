@@ -28,6 +28,7 @@ class CountdownTimerImpl : CountdownTimer {
     override fun init(duration: Duration) {
         _timeLeft.value = duration.inWholeMilliseconds
         finished = false
+        step = 1000L
         if (timerJob != null) timerJob?.cancel()
         timerJob = CoroutineScope(Dispatchers.Default).launch { while (!finished) tick() }
     }
