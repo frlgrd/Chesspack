@@ -112,10 +112,7 @@ class BoardMapper {
 
     private fun Piece?.toPieceUiInfo(): PieceInfo? {
         this ?: return null
-        return PieceInfo(
-            drawableResource = drawableResource,
-            legalMoves = legalMoves
-        )
+        return PieceInfo(drawableResource = drawableResource, legalMoves = legalMoves)
     }
 
     private fun PiecePosition.toCoordinatesUI(
