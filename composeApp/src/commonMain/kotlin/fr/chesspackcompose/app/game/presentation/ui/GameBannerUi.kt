@@ -24,11 +24,12 @@ import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun GameBannerUi(
+    modifier: Modifier = Modifier,
     gameBanner: GameBanner?,
     timerUi: TimerUi?
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 10.dp)
             .height(50.dp),

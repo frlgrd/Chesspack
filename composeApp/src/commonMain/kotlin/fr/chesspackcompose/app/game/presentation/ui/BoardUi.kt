@@ -15,12 +15,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import fr.chesspackcompose.app.game.presentation.GameUIState
 import fr.chesspackcompose.app.game.presentation.GameUiEvent
+import fr.chesspackcompose.app.game.presentation.RotateMode
 
 @Composable
 fun BoardUi(
@@ -48,6 +50,20 @@ fun BoardUi(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center
     ) {
+        if (state.rotateMode == RotateMode.FaceToFace) {
+            Divider()
+            GameBannerUi(
+                modifier = Modifier.rotate(180F),
+                gameBanner = state.withesGameBanner,
+                timerUi = state.whiteTimer
+            )
+            Divider()
+            GameBannerUi(
+                modifier = Modifier.rotate(180F),
+                gameBanner = state.blacksGameBanner,
+                timerUi = state.blackTimer
+            )
+        }
         Box(
             modifier = Modifier
                 .onGloballyPositioned { squareSize = it.size.div(8).width.div(density.density).dp }
@@ -65,15 +81,14 @@ fun BoardUi(
                 )
             }
         }
+        GameBannerUi(
+            gameBanner = state.blacksGameBanner,
+            timerUi = state.blackTimer
+        )
         Divider()
         GameBannerUi(
             gameBanner = state.withesGameBanner,
             timerUi = state.whiteTimer
-        )
-        Divider()
-        GameBannerUi(
-            gameBanner = state.blacksGameBanner,
-            timerUi = state.blackTimer
         )
         Divider()
     }
