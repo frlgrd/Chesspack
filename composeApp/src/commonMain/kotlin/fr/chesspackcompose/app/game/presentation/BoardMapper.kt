@@ -38,6 +38,8 @@ class BoardMapper {
             (0..7).forEach { y ->
                 val position = PiecePosition(x = x, y = y)
                 val piece = boardState.pieces.find { it.position == position }
+                val gameOnGoing = boardState.winner == null
+                val isChecked = gameOnGoing && piece is King && piece.isChecked
                 val cellUIModel = CellUIModel(
                     position = position,
                     squareColor = squareColor(
@@ -45,10 +47,13 @@ class BoardMapper {
                         piece = piece,
                         position = position
                     ),
-                    moveEnabled = boardState.winner == null && boardState.currentPlayer == piece?.color,
+                    moveEnabled = gameOnGoing && boardState.currentPlayer == piece?.color,
                     pieceInfo = piece.toPieceUiInfo(),
-                    isChecked = boardState.winner == null && piece is King && piece.isChecked,
-                    coordinateUI = position.toCoordinatesUI(currentPlayer = boardState.currentPlayer)
+                    isChecked = isChecked,
+                    coordinateUI = position.toCoordinatesUI(
+                        boardState = boardState,
+                        piece = piece
+                    )
                 )
                 result.add(cellUIModel)
             }
@@ -116,8 +121,14 @@ class BoardMapper {
     }
 
     private fun PiecePosition.toCoordinatesUI(
-        currentPlayer: PieceColor
+        boardState: Board.State,
+        piece: Piece?,
     ): CoordinateUI? {
+        val currentPlayer = if (boardState.winner == null) {
+            boardState.currentPlayer
+        } else {
+            boardState.currentPlayer.switch()
+        }
         val xLimit = when (currentPlayer) {
             PieceColor.Black -> 7
             PieceColor.White -> 0
@@ -127,7 +138,11 @@ class BoardMapper {
         val yCoordinate = if (yLimit == y) pgnPositionY else null
 
         if (xCoordinate == null && yCoordinate == null) return null
-        val color = if ((x + y) % 2 == 0) lightColor else darkColor
+        val color = when {
+            boardState.winner != null && piece is King -> Color.White
+            boardState.winner == null && piece is King && piece.isChecked -> Color.White
+            else -> if ((x + y) % 2 == 0) lightColor else darkColor
+        }
         return CoordinateUI(color = color, x = xCoordinate, y = yCoordinate)
     }
 
