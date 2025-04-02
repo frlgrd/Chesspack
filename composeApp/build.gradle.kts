@@ -88,6 +88,7 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.websockets)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(libs.navigation.compose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
