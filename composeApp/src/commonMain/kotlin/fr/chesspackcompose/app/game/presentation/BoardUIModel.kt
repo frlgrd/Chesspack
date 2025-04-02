@@ -4,6 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import fr.chesspackcompose.app.game.domain.PiecePosition
+import fr.chesspackcompose.app.game.presentation.ui.checkmatedColor
+import fr.chesspackcompose.app.game.presentation.ui.hoverColorWithAlpha
+import fr.chesspackcompose.app.game.presentation.ui.originalPositionColorWithAlpha
 import org.jetbrains.compose.resources.DrawableResource
 
 @Immutable

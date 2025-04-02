@@ -1,4 +1,4 @@
-package fr.chesspackcompose.app.game.presentation
+package fr.chesspackcompose.app.game.presentation.ui
 
 import androidx.compose.ui.graphics.Color
 

@@ -12,9 +12,10 @@ import chesspackcompose.composeapp.generated.resources.Res
 import chesspackcompose.composeapp.generated.resources.piece_pawn_side_black
 import chesspackcompose.composeapp.generated.resources.piece_queen_side_black
 import fr.chesspackcompose.app.game.domain.PieceColor
+import fr.chesspackcompose.app.game.presentation.GameBanner
 import fr.chesspackcompose.app.game.presentation.TakenPiece
 import fr.chesspackcompose.app.game.presentation.TimerUi
-import fr.chesspackcompose.app.game.presentation.ui.GameBannerUi
+import fr.chesspackcompose.app.game.presentation.ui.component.GameBannerUi
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,7 +31,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppAndroidPreview() {
     GameBannerUi(
-        gameBanner = fr.chesspackcompose.app.game.presentation.GameBanner(
+        gameBanner = GameBanner(
             takenPieces = mapOf(
                 Res.drawable.piece_pawn_side_black to TakenPiece(order = 1, count = 3),
                 Res.drawable.piece_queen_side_black to TakenPiece(order = 3, count = 1)

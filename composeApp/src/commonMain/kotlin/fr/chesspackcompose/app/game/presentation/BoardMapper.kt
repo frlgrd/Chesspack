@@ -28,6 +28,13 @@ import fr.chesspackcompose.app.game.domain.pieces.Pawn
 import fr.chesspackcompose.app.game.domain.pieces.Piece
 import fr.chesspackcompose.app.game.domain.pieces.Queen
 import fr.chesspackcompose.app.game.domain.pieces.Rook
+import fr.chesspackcompose.app.game.presentation.ui.darkColor
+import fr.chesspackcompose.app.game.presentation.ui.lightColor
+import fr.chesspackcompose.app.game.presentation.ui.looserColor
+import fr.chesspackcompose.app.game.presentation.ui.timerAlphaRedBackgroundColor
+import fr.chesspackcompose.app.game.presentation.ui.timerDefaultBackgroundColor
+import fr.chesspackcompose.app.game.presentation.ui.timerRedBackgroundColor
+import fr.chesspackcompose.app.game.presentation.ui.winnerColor
 import org.jetbrains.compose.resources.DrawableResource
 
 class BoardMapper {

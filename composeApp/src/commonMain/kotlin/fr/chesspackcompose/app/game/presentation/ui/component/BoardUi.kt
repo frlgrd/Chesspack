@@ -1,4 +1,4 @@
-package fr.chesspackcompose.app.game.presentation.ui
+package fr.chesspackcompose.app.game.presentation.ui.component
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween

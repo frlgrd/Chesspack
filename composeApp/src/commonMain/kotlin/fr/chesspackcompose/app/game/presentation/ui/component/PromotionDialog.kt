@@ -1,4 +1,4 @@
-package fr.chesspackcompose.app.game.presentation.ui
+package fr.chesspackcompose.app.game.presentation.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
