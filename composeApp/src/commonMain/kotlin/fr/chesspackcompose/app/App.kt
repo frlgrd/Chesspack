@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import fr.chesspackcompose.app.game.presentation.ui.game
-import fr.chesspackcompose.app.match_making.presentation.matchMaking
+import fr.chesspackcompose.app.match_making.presentation.ui.matchMaking
 import kotlinx.serialization.Serializable
 
 @Composable

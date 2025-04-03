@@ -1,11 +1,11 @@
 package fr.chesspackcompose.app.core.network
 
-import fr.chesspackcompose.app.core.network.event.WSEvent
-import kotlinx.coroutines.flow.Flow
+import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 
 interface WebSocketClient {
-    val event: Flow<WSEvent>
-    suspend fun start(id: String)
-    suspend fun send(id: String, data: Any)
-    suspend fun close(id: String)
+    suspend fun start(
+        path: String,
+        id: String,
+        block: suspend DefaultClientWebSocketSession.() -> Unit
+    )
 }
