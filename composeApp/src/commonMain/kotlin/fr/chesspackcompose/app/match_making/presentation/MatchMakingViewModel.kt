@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class MatchMakingViewModel(
     private val matchMakingRepository: MatchMakingRepository
@@ -17,6 +19,9 @@ class MatchMakingViewModel(
 
     private val _state = MutableStateFlow(MatchMakingUiState())
     val state = _state.asStateFlow()
+
+    @OptIn(ExperimentalUuidApi::class)
+    private val playerId = Uuid.random().toString()
 
     init {
         matchMakingRepository.status.onEach { update ->
@@ -47,7 +52,7 @@ class MatchMakingViewModel(
     private fun startMatchMaking() {
         _state.update { it.copy(buttonEnabled = false) }
         viewModelScope.launch {
-            matchMakingRepository.startMatchMaking()
+            matchMakingRepository.startMatchMaking(playerId = playerId)
         }
     }
 }

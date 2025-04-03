@@ -14,8 +14,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.serialization.json.Json
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class MatchMakingRepositoryImpl(
     private val client: WebSocketClient
@@ -25,9 +23,7 @@ class MatchMakingRepositoryImpl(
     override val status: Flow<MatchMakingStatus> get() = _status.asSharedFlow()
     private lateinit var session: DefaultClientWebSocketSession
 
-    @OptIn(ExperimentalUuidApi::class)
-    override suspend fun startMatchMaking() {
-        val playerId = Uuid.random().toString()
+    override suspend fun startMatchMaking(playerId: String) {
         client.start(path = "/match-making", id = playerId) {
             session = this
             try {
