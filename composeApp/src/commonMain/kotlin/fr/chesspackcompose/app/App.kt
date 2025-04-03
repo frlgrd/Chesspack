@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import fr.chesspackcompose.app.game.presentation.ui.game
-import fr.chesspackcompose.app.match_making.domain.Match
 import fr.chesspackcompose.app.match_making.presentation.ui.matchMaking
 import kotlinx.serialization.Serializable
 
@@ -30,7 +29,7 @@ fun App() {
                 startDestination = NavigationDestination.MatchMaking
             ) {
                 matchMaking(onMatchFound = { match ->
-                    navController.navigate(NavigationDestination.Game(match))
+                    navController.navigate(NavigationDestination.Game)
                 })
                 game()
             }
@@ -44,6 +43,6 @@ sealed interface NavigationDestination {
     data object MatchMaking : NavigationDestination
 
     @Serializable
-    data class Game(val match: Match) : NavigationDestination
+    data object Game : NavigationDestination
 }
 

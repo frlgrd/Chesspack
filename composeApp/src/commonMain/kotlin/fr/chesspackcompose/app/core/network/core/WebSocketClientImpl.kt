@@ -5,6 +5,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
 import io.ktor.client.plugins.websocket.webSocket
 import io.ktor.client.request.parameter
+import io.ktor.http.HttpMethod
+import io.ktor.http.URLProtocol
 
 class WebSocketClientImpl(
     private val httpClient: HttpClient
@@ -14,10 +16,14 @@ class WebSocketClientImpl(
         id: String,
         block: suspend DefaultClientWebSocketSession.() -> Unit
     ) = httpClient.webSocket(
-        host = "10.0.2.2",
-        port = 8080,
+        method = HttpMethod.Get,
+        host = "chesspack-71354d94eb2f.herokuapp.com",
+        port = 443,
         path = path,
-        request = { parameter("id", id) },
+        request = {
+            url.protocol = URLProtocol.WSS
+            parameter("id", id)
+        },
         block = block
     )
 }
