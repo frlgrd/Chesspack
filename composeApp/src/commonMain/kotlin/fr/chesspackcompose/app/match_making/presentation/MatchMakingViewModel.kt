@@ -2,6 +2,7 @@ package fr.chesspackcompose.app.match_making.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import fr.chesspackcompose.app.match_making.domain.Match
 import fr.chesspackcompose.app.match_making.domain.MatchMakingRepository
 import fr.chesspackcompose.app.match_making.domain.MatchMakingStatus
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,16 +28,13 @@ class MatchMakingViewModel(
         matchMakingRepository.status.onEach { update ->
             _state.update {
                 when (update) {
-                    is MatchMakingStatus.MatchMakingDone -> it.copy(
-                        text = "Match found",
-                        buttonEnabled = false,
-                        matchMakingStatus = update
+                    is MatchMakingStatus.Done -> it.copy(
+                        match = Match(matchMakingDone = update, playerId = playerId)
                     )
 
                     is MatchMakingStatus.MatchMakingInProgress -> it.copy(
                         buttonEnabled = false,
-                        text = "Waiting for opponent ${update.progress}",
-                        matchMakingStatus = update
+                        text = "Waiting for opponent ${update.progress}"
                     )
                 }
             }

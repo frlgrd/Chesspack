@@ -9,7 +9,7 @@ sealed interface MatchMakingStatus {
     data class MatchMakingInProgress(val progress: Int) : MatchMakingStatus
 
     @Serializable
-    data class MatchMakingDone(
+    data class Done(
         val player1: MatchPlayer,
         val player2: MatchPlayer,
         val gameId: String

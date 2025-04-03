@@ -13,7 +13,7 @@ object MatchMakingSerializer : JsonContentPolymorphicSerializer<MatchMakingStatu
         return if (element.toString().contains(PROGRESS)) {
             MatchMakingStatus.MatchMakingInProgress.serializer()
         } else {
-            MatchMakingStatus.MatchMakingDone.serializer()
+            MatchMakingStatus.Done.serializer()
         }
     }
 }

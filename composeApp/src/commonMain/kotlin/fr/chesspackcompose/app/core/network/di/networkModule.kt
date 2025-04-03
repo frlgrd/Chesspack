@@ -24,7 +24,7 @@ val networkModule: Module
                         serializersModule = SerializersModule {
                             polymorphic(MatchMakingStatus::class) {
                                 subclass(MatchMakingStatus.MatchMakingInProgress::class)
-                                subclass(MatchMakingStatus.MatchMakingDone::class)
+                                subclass(MatchMakingStatus.Done::class)
                             }
                         }
                     })
