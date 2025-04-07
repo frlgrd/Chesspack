@@ -13,8 +13,8 @@ compose-multiplatform = "1.7.0"
 kotlin = "2.1.20"
 kotlinx-coroutines = "1.10.1"
 koin = "4.0.2"
+kotlinxSerializationJson = "1.8.1"
 ktor = "3.1.1"
-logbackClassic = "1.0"
 media3Exoplayer = "1.6.0"
 navigationCompose = "2.8.0-alpha10"
 uiTestJunit4Android = "1.7.8"
@@ -31,7 +31,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
-
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }

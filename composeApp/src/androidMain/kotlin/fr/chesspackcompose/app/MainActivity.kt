@@ -37,8 +37,8 @@ fun AppAndroidPreview() {
                 Res.drawable.piece_queen_side_black to TakenPiece(order = 3, count = 1)
             ),
             pieceColor = PieceColor.White,
-            textColor = Color.White,
-            advantageLabel = "+10"
+            advantageLabel = "+10",
+            playerId = "toto"
         ),
         timerUi = TimerUi("", Color.Black, Color.White, FontWeight.Bold)
     )

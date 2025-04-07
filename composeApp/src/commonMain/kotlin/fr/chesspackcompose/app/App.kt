@@ -1,35 +1,25 @@
 package fr.chesspackcompose.app
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import fr.chesspackcompose.app.game.presentation.ui.game
 import fr.chesspackcompose.app.match_making.presentation.ui.matchMaking
+import fr.chesspackcompose.app.ui.ChesspackTheme
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Composable
 fun App() {
-    MaterialTheme {
-        val navController = rememberNavController()
-        Scaffold(
-            modifier = Modifier
-                .background(Color.DarkGray)
-                .safeDrawingPadding(),
-            backgroundColor = Color.DarkGray,
-            contentColor = Color.DarkGray
-        ) {
-            NavHost(
-                navController = navController,
-                startDestination = NavigationDestination.MatchMaking
-            ) {
+    ChesspackTheme {
+        Scaffold(modifier = Modifier.safeDrawingPadding()) {
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = MatchMakingRoute) {
                 matchMaking(onMatchFound = { match ->
-                    navController.navigate(NavigationDestination.Game)
+                    navController.navigate(GameRoute(Json.encodeToString(match)))
                 })
                 game()
             }
@@ -37,12 +27,9 @@ fun App() {
     }
 }
 
-sealed interface NavigationDestination {
+@Serializable
+object MatchMakingRoute
 
-    @Serializable
-    data object MatchMaking : NavigationDestination
-
-    @Serializable
-    data object Game : NavigationDestination
-}
+@Serializable
+data class GameRoute(val matchJson: String)
 

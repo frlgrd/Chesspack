@@ -5,29 +5,53 @@ import androidx.compose.ui.text.font.FontWeight
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.PiecePosition
 import fr.chesspackcompose.app.game.domain.Promotion
+import fr.chesspackcompose.app.match_making.domain.Match
+import fr.chesspackcompose.app.match_making.domain.getInitialBoardRotation
+import fr.chesspackcompose.app.match_making.domain.getPlayerColor
 import org.jetbrains.compose.resources.DrawableResource
 
 data class GameUIState(
+    val match: Match,
     val cells: List<CellUIModel> = emptyList(),
-    val boardRotation: Float = 0F,
     val withesGameBanner: GameBanner? = null,
     val blacksGameBanner: GameBanner? = null,
     val promotionUiModel: PromotionUiModel? = null,
     val currentPlayer: PieceColor = PieceColor.White,
     val winner: PieceColor? = null,
-    val rotateMode: RotateMode = RotateMode.SideBySide,
     var whiteTimer: TimerUi? = null,
     var blackTimer: TimerUi? = null
 ) {
-    val gameFinished: Boolean get() = winner != null
-    val sideBySide: Boolean get() = rotateMode == RotateMode.SideBySide
+    val boardRotation: Float get() = match.getInitialBoardRotation()
+    private val playerColor = match.getPlayerColor()
+    val topTimer: TimerUi?
+        get() {
+            return when (playerColor) {
+                PieceColor.Black -> whiteTimer
+                PieceColor.White -> blackTimer
+            }
+        }
+    val bottomTimer: TimerUi?
+        get() = when (playerColor) {
+            PieceColor.Black -> blackTimer
+            PieceColor.White -> whiteTimer
+        }
+    val topBanner: GameBanner?
+        get() = when (playerColor) {
+            PieceColor.Black -> withesGameBanner
+            PieceColor.White -> blacksGameBanner
+        }
+    val bottomBanner: GameBanner?
+        get() = when (playerColor) {
+            PieceColor.Black -> blacksGameBanner
+            PieceColor.White -> withesGameBanner
+        }
 }
 
 data class GameBanner(
     val takenPieces: Map<DrawableResource, TakenPiece>,
     val pieceColor: PieceColor,
-    val textColor: Color,
-    val advantageLabel: String
+    val advantageLabel: String,
+    val playerId: String
 )
 
 data class TakenPiece(
@@ -45,15 +69,6 @@ data class PromotionItem(
     val color: PieceColor,
     val position: PiecePosition
 )
-
-enum class RotateMode {
-    SideBySide, FaceToFace;
-
-    fun switch(): RotateMode = when (this) {
-        SideBySide -> FaceToFace
-        FaceToFace -> SideBySide
-    }
-}
 
 data class TimerUi(
     val timeLeft: String,

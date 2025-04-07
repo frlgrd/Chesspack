@@ -9,5 +9,4 @@ sealed interface GameUiEvent {
     data object DragCanceled : GameUiEvent
     data class OnPromotion(val promotionItem: PromotionItem) : GameUiEvent
     data object ResetRequested : GameUiEvent
-    data object SwitchRotateMode : GameUiEvent
 }

@@ -1,5 +1,6 @@
 package fr.chesspackcompose.app.match_making.domain
 
+import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.match_making.data.MatchMakingSerializer
 import kotlinx.serialization.Serializable
 
@@ -19,7 +20,5 @@ sealed interface MatchMakingStatus {
 @Serializable
 data class MatchPlayer(
     val id: String,
-    val color: PlayerColor
+    val color: PieceColor
 )
-
-enum class PlayerColor { Black, White }

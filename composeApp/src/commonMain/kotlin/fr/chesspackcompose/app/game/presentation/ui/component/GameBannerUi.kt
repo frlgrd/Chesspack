@@ -13,6 +13,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +43,7 @@ fun GameBannerUi(
             Text(
                 modifier = Modifier.padding(start = 6.dp).weight(1F),
                 text = gameBanner.advantageLabel,
-                color = gameBanner.textColor,
+                color = Color.White,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -72,9 +73,10 @@ private fun TakenPiecesGroup(
 @Composable
 private fun TimerText(timerUi: TimerUi) {
     Text(
-        modifier = Modifier
-            .background(color = timerUi.backgroundColor, shape = RoundedCornerShape(4.dp))
-            .padding(horizontal = 4.dp),
+        modifier = Modifier.background(
+            color = timerUi.backgroundColor,
+            shape = RoundedCornerShape(4.dp)
+        ).padding(horizontal = 4.dp),
         text = timerUi.timeLeft,
         color = timerUi.textColor,
         fontSize = 18.sp,

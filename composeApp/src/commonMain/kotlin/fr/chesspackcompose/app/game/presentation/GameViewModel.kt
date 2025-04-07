@@ -1,5 +1,6 @@
 package fr.chesspackcompose.app.game.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import chesspackcompose.composeapp.generated.resources.Res
@@ -9,13 +10,14 @@ import fr.chesspackcompose.app.game.domain.CountdownTimer
 import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.defaultTimerDuration
-import kotlinx.coroutines.delay
+import fr.chesspackcompose.app.match_making.domain.Match
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
+import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import kotlin.time.Duration
 
@@ -24,11 +26,13 @@ class GameViewModel(
     private val boardMapper: BoardMapper,
     private val soundEffectPlayer: SoundEffectPlayer,
     whiteCountdownTimer: CountdownTimer,
-    blackCountdownTimer: CountdownTimer
+    blackCountdownTimer: CountdownTimer,
+    handle: SavedStateHandle
 ) : ViewModel() {
-    private val _state = MutableStateFlow(GameUIState())
-    val state = _state.asStateFlow()
 
+    private val match = Json.decodeFromString<Match>(handle.get<String>("matchJson").orEmpty())
+    private val _state = MutableStateFlow(GameUIState(match = match))
+    val state = _state.asStateFlow()
     private val timers = mapOf(
         PieceColor.White to whiteCountdownTimer,
         PieceColor.Black to blackCountdownTimer,
@@ -38,16 +42,21 @@ class GameViewModel(
         board.state.onEach { boardState ->
             _state.update { ui ->
                 ui.copy(
-                    cells = boardMapper.mapPieces(boardState),
+                    cells = boardMapper.mapPieces(
+                        boardState = boardState,
+                        match = match
+                    ),
                     withesGameBanner = boardMapper.mapBanner(
                         color = PieceColor.White,
                         allPieces = boardState.pieces,
-                        takenPieces = boardState.takenPieces
+                        takenPieces = boardState.takenPieces,
+                        match = match
                     ),
                     blacksGameBanner = boardMapper.mapBanner(
                         color = PieceColor.Black,
                         allPieces = boardState.pieces,
-                        takenPieces = boardState.takenPieces
+                        takenPieces = boardState.takenPieces,
+                        match = match
                     ),
                     promotionUiModel = boardMapper.mapPromotion(boardState.promotion),
                     currentPlayer = boardState.currentPlayer,
@@ -110,17 +119,13 @@ class GameViewModel(
                 board.reset()
                 intTimers()
             }
-
-            is GameUiEvent.SwitchRotateMode -> _state.update { it.copy(rotateMode = it.rotateMode.switch()) }
         }
     }
 
-    private suspend fun playerSwitched(currentPlayer: PieceColor) {
+    private fun playerSwitched(currentPlayer: PieceColor) {
         timers.values.forEach { it.currentPlayer = currentPlayer }
         timers[currentPlayer.switch()]?.pause()
-        delay(300)
         timers[currentPlayer]?.resume()
-        _state.update { it.copy(boardRotation = if (it.boardRotation == 180F) 0F else 180F) }
     }
 
     private fun intTimers() {

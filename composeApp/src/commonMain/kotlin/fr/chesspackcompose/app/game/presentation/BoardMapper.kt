@@ -32,14 +32,16 @@ import fr.chesspackcompose.app.game.presentation.ui.darkColor
 import fr.chesspackcompose.app.game.presentation.ui.lightColor
 import fr.chesspackcompose.app.game.presentation.ui.looserColor
 import fr.chesspackcompose.app.game.presentation.ui.timerAlphaRedBackgroundColor
-import fr.chesspackcompose.app.game.presentation.ui.timerDefaultBackgroundColor
 import fr.chesspackcompose.app.game.presentation.ui.timerRedBackgroundColor
 import fr.chesspackcompose.app.game.presentation.ui.winnerColor
+import fr.chesspackcompose.app.match_making.domain.Match
+import fr.chesspackcompose.app.match_making.domain.getPlayerColor
 import org.jetbrains.compose.resources.DrawableResource
 
 class BoardMapper {
     fun mapPieces(
-        boardState: Board.State
+        boardState: Board.State,
+        match: Match
     ): List<CellUIModel> {
         val result = mutableListOf<CellUIModel>()
         (0..7).forEach { x ->
@@ -59,6 +61,7 @@ class BoardMapper {
                     pieceInfo = piece.toPieceUiInfo(),
                     isChecked = isChecked,
                     coordinateUI = position.toCoordinatesUI(
+                        match = match,
                         boardState = boardState,
                         piece = piece
                     )
@@ -72,14 +75,20 @@ class BoardMapper {
     fun mapBanner(
         color: PieceColor,
         allPieces: Set<Piece>,
-        takenPieces: Map<PieceColor, List<Piece>>
+        takenPieces: Map<PieceColor, List<Piece>>,
+        match: Match
     ): GameBanner {
         val advantage = buildAdvantageLabel(color = color, allPieces = allPieces)
+        val playerId = when (color) {
+            match.matchMaking.player1.color -> match.matchMaking.player1.id
+            match.matchMaking.player2.color -> match.matchMaking.player2.id
+            else -> throw IllegalArgumentException("impossible color")
+        }
         val gameBanner = GameBanner(
             takenPieces = emptyMap(),
             pieceColor = color,
-            textColor = color.toUiColor,
-            advantageLabel = advantage
+            advantageLabel = advantage,
+            playerId = playerId
         )
         val pieces = takenPieces[color.switch()] ?: return gameBanner
         val piecesMap = mutableMapOf<DrawableResource, TakenPiece>()
@@ -101,13 +110,17 @@ class BoardMapper {
         return PromotionUiModel(items = promotion.pawn.promotions)
     }
 
-    fun mapTimer(timeLeft: Long, timerPlayer: PieceColor, currentPlayer: PieceColor): TimerUi {
+    fun mapTimer(
+        timeLeft: Long,
+        timerPlayer: PieceColor,
+        currentPlayer: PieceColor
+    ): TimerUi {
         return TimerUi(
             timeLeft = timeLeft.formattedLeftTime(),
             backgroundColor = when {
                 timeLeft == 0L -> timerRedBackgroundColor
                 timeLeft < 60 * 1000 -> timerAlphaRedBackgroundColor
-                else -> timerDefaultBackgroundColor
+                else -> timerPlayer.switch().toUiColor.copy(alpha = 0.5F)
             },
             timerFontWeight = if (currentPlayer == timerPlayer) FontWeight.ExtraBold else FontWeight.Normal,
             textColor = timerPlayer.toUiColor
@@ -141,10 +154,11 @@ class BoardMapper {
     }
 
     private fun PiecePosition.toCoordinatesUI(
+        match: Match,
         boardState: Board.State,
         piece: Piece?,
     ): CoordinateUI? {
-        val xLimit = when (boardState.currentPlayer) {
+        val xLimit = when (match.getPlayerColor()) {
             PieceColor.Black -> 7
             PieceColor.White -> 0
         }
