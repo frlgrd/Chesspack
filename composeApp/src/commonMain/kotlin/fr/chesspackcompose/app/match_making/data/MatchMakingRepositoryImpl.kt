@@ -5,6 +5,7 @@ import fr.chesspackcompose.app.core.network.WebSocketClient
 import fr.chesspackcompose.app.match_making.domain.MatchMakingRepository
 import fr.chesspackcompose.app.match_making.domain.MatchMakingStatus
 import io.ktor.client.plugins.websocket.DefaultClientWebSocketSession
+import io.ktor.client.request.parameter
 import io.ktor.websocket.Frame
 import io.ktor.websocket.close
 import io.ktor.websocket.readText
@@ -24,7 +25,9 @@ class MatchMakingRepositoryImpl(
     private lateinit var session: DefaultClientWebSocketSession
 
     override suspend fun startMatchMaking(playerId: String) {
-        client.start(path = "/match-making", id = playerId) {
+        client.start(
+            path = "/match-making",
+            request = { parameter("id", playerId) }) {
             session = this
             try {
                 for (frame in incoming) {

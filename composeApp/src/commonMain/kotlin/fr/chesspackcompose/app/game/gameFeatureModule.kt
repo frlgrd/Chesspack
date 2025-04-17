@@ -5,8 +5,10 @@ import fr.chesspackcompose.app.core.network.di.networkModule
 import fr.chesspackcompose.app.game.data.BoardImpl
 import fr.chesspackcompose.app.game.data.CountdownTimerImpl
 import fr.chesspackcompose.app.game.data.Fen
+import fr.chesspackcompose.app.game.data.MatchRepositoryImpl
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.CountdownTimer
+import fr.chesspackcompose.app.game.domain.MatchRepository
 import fr.chesspackcompose.app.game.presentation.BoardMapper
 import fr.chesspackcompose.app.game.presentation.GameViewModel
 import org.koin.core.context.loadKoinModules
@@ -20,5 +22,6 @@ val gameFeatureModule = module {
     single<Board> { BoardImpl(fen = get()) }
     single<BoardMapper> { BoardMapper() }
     factory<CountdownTimer> { CountdownTimerImpl() }
+    single<MatchRepository> { MatchRepositoryImpl(client = get()) }
     viewModelOf(::GameViewModel)
 }

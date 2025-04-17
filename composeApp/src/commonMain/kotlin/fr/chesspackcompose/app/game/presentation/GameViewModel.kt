@@ -7,6 +7,8 @@ import chesspackcompose.composeapp.generated.resources.Res
 import fr.chesspackcompose.app.core.audio.SoundEffectPlayer
 import fr.chesspackcompose.app.game.domain.Board
 import fr.chesspackcompose.app.game.domain.CountdownTimer
+import fr.chesspackcompose.app.game.domain.GameMove
+import fr.chesspackcompose.app.game.domain.MatchRepository
 import fr.chesspackcompose.app.game.domain.MoveResult
 import fr.chesspackcompose.app.game.domain.PieceColor
 import fr.chesspackcompose.app.game.domain.defaultTimerDuration
@@ -17,12 +19,14 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import kotlin.time.Duration
 
 class GameViewModel(
     private val board: Board,
+    private val matchRepository: MatchRepository,
     private val boardMapper: BoardMapper,
     private val soundEffectPlayer: SoundEffectPlayer,
     whiteCountdownTimer: CountdownTimer,
@@ -39,6 +43,13 @@ class GameViewModel(
     )
 
     init {
+        viewModelScope.launch {
+            matchRepository.startGame(match)
+        }
+        matchRepository.opponentMoves
+            .onEach(::handleOpponentMove)
+            .launchIn(viewModelScope)
+
         board.state.onEach { boardState ->
             _state.update { ui ->
                 ui.copy(
@@ -76,6 +87,7 @@ class GameViewModel(
     override fun onCleared() {
         super.onCleared()
         soundEffectPlayer.release()
+        viewModelScope.launch { matchRepository.stop() }
     }
 
     fun onEvent(event: GameUiEvent) {
@@ -91,7 +103,18 @@ class GameViewModel(
                 })
             }
 
-            is GameUiEvent.PieceDropped -> board.move(from = event.cell.position, to = event.at)
+            is GameUiEvent.PieceDropped -> {
+                board.move(from = event.cell.position, to = event.to)
+                viewModelScope.launch {
+                    matchRepository.move(
+                        GameMove.Move(
+                            playerId = match.playerId,
+                            from = event.cell.position,
+                            to = event.to
+                        )
+                    )
+                }
+            }
 
             is GameUiEvent.DragCanceled -> _state.update {
                 it.copy(cells = it.cells.map { cell ->
@@ -157,6 +180,12 @@ class GameViewModel(
             }
         }.launchIn(viewModelScope)
         if (pieceColor == PieceColor.White) countdownTimer.resume()
+    }
+
+    private fun handleOpponentMove(move: GameMove) {
+        when (move) {
+            is GameMove.Move -> board.move(move.from, move.to)
+        }
     }
 
     @OptIn(ExperimentalResourceApi::class)

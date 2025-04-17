@@ -2,6 +2,7 @@ package fr.chesspackcompose.app.core.network.di
 
 import fr.chesspackcompose.app.core.network.WebSocketClient
 import fr.chesspackcompose.app.core.network.core.WebSocketClientImpl
+import fr.chesspackcompose.app.core.network.env.Environment
 import fr.chesspackcompose.app.match_making.domain.MatchMakingStatus
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.WebSockets
@@ -32,6 +33,6 @@ val networkModule: Module
             }
         }
         single<WebSocketClient> {
-            WebSocketClientImpl(httpClient = get())
+            WebSocketClientImpl(httpClient = get(), environment = Environment.default)
         }
     }

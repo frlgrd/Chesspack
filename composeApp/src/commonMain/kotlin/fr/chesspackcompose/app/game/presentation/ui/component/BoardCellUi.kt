@@ -141,7 +141,7 @@ fun BoardCellUi(
 
                                 if (cell.pieceInfo.legalMoves.contains(position)) {
                                     onEvent(
-                                        GameUiEvent.PieceDropped(cell = cell, at = position)
+                                        GameUiEvent.PieceDropped(cell = cell, to = position)
                                     )
                                     dragOffset = Offset.Zero
                                 } else {

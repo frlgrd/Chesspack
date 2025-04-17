@@ -57,7 +57,7 @@ class BoardMapper {
                         piece = piece,
                         position = position
                     ),
-                    moveEnabled = gameOnGoing && boardState.currentPlayer == piece?.color,
+                    moveEnabled = gameOnGoing && match.getPlayerColor() == piece?.color,
                     pieceInfo = piece.toPieceUiInfo(),
                     isChecked = isChecked,
                     coordinateUI = position.toCoordinatesUI(
